@@ -2,7 +2,7 @@
 variable "name_prefix" {
   type        = string
   description = "Prefix used for resource names"
-  default     = "starter"
+  default     = "argocdstarter"
 }
 
 variable "repository_branch" {
