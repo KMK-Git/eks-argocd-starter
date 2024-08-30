@@ -1,6 +1,5 @@
 {{- $repository_url := .Values.repository.url | required ".Values.repository.url is required." -}}
 {{- $branch := .Values.repository.branch | required ".Values.repository.branch is required." -}}
-{{- $path := .Values.repository.path | required ".Values.repository.path is required." -}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
