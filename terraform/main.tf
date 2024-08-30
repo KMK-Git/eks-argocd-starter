@@ -107,25 +107,20 @@ resource "helm_release" "argocd" {
   values           = [file("${path.module}/helmvalues/argocd.yaml")]
 }
 
-# resource "helm_release" "argocd_baseapp" {
-#   depends_on       = [helm_release.argocd]
-#   name             = "argocdbaseapp"
-#   chart            = "${path.module}/../charts/baseapp"
-#   namespace        = "argocd"
-#   version          = "0.1.1"
-#   create_namespace = true
-#   set {
-#     name  = "repository.url"
-#     value = var.repository_url
-#   }
+resource "helm_release" "argocd_baseapp" {
+  depends_on       = [helm_release.argocd]
+  name             = "argocdbaseapp"
+  chart            = "${path.module}/../charts/baseapp"
+  namespace        = "argocd"
+  version          = "0.1.1"
+  create_namespace = true
+  set {
+    name  = "repository.url"
+    value = var.repository_url
+  }
 
-#   set {
-#     name  = "repository.branch"
-#     value = var.repository_branch
-#   }
-
-#   set {
-#     name  = "repository.path"
-#     value = "apps/allapps"
-#   }
-# }
+  set {
+    name  = "repository.branch"
+    value = var.repository_branch
+  }
+}

@@ -4,14 +4,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: base-app
+  name: argocdclusterapps
   namespace: argocd
 spec:
   project: base-app-project
   source:
     repoURL: {{ $repository_url }}
     targetRevision: {{ $branch }}
-    path: {{ $path }}
+    path: "charts/argocdclusterapps"
+    chart: argocdclusterapps
+    helm:
+      parameters:
+      - name: "repository.url"
+        value: {{ $repository_url }}
+      - name: "repository.branch"
+        value: {{ $branch }}
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
