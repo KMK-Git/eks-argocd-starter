@@ -8,9 +8,9 @@ metadata:
 spec:
   project: base-app-project
   source:
+    path: "charts/argocdclusterapps/"
     repoURL: {{ $repository_url }}
-    path: "charts/argocdclusterapps"
-    chart: argocdclusterapps
+    targetRevision: {{ $branch }}
     helm:
       parameters:
       - name: "repository.url"
