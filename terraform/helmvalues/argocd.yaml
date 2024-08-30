@@ -9,6 +9,15 @@ global:
 
 redis-ha:
   enabled: true
+  tolerations:
+    - key: CriticalAddonsOnly
+      value: "true"
+      effect: NoSchedule
+  haproxy:
+    tolerations:
+      - key: CriticalAddonsOnly
+        value: "true"
+        effect: NoSchedule
 
 controller:
   replicas: 1
