@@ -9,7 +9,7 @@ spec:
   project: base-app-project
   source:
     repoURL: {{ $repository_url }}
-    targetRevision: {{ $branch }}
+    targetRevision: "0.1.0"
     path: "charts/argocdclusterapps"
     chart: argocdclusterapps
     helm:
