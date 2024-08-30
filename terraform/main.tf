@@ -112,7 +112,7 @@ resource "helm_release" "argocd_baseapp" {
   name             = "argocdbaseapp"
   chart            = "${path.module}/../charts/baseapp"
   namespace        = "argocd"
-  version          = "0.1.3"
+  version          = "0.1.4"
   create_namespace = true
   set {
     name  = "repository.url"
