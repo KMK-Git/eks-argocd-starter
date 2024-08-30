@@ -9,7 +9,6 @@ spec:
   project: base-app-project
   source:
     repoURL: {{ $repository_url }}
-    targetRevision: "0.1.0"
     path: "charts/argocdclusterapps"
     chart: argocdclusterapps
     helm:
@@ -21,3 +20,8 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      allowEmpty: true
+      selfHeal: true
