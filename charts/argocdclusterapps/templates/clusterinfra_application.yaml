@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: clusterinfra
-  namespace: kube-system
+  namespace: argocd
 spec:
   project: argocdcluster-app-project
   source:
@@ -13,7 +13,7 @@ spec:
     targetRevision: {{ $branch }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: kube-system
   syncPolicy:
     automated:
       prune: true
