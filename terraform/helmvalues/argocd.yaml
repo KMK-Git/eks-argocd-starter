@@ -1,10 +1,20 @@
 server:
-  service:
-    type: LoadBalancer
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  replicas: 2
+
 global:
   tolerations:
     - key: CriticalAddonsOnly
       value: "true"
       effect: NoSchedule
+
+redis-ha:
+  enabled: true
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 2
+
+applicationSet:
+  replicas: 2

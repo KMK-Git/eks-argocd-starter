@@ -66,8 +66,8 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   eks_managed_node_groups = {
-    coreaddons = {
-      instance_types = ["m5.large"]
+    nodegroup = {
+      instance_types = ["m6i.large"]
 
       min_size     = 2
       max_size     = 2
@@ -90,12 +90,6 @@ module "eks" {
       }
     }
   }
-  # node_security_group_tags = {
-  #   # NOTE - if creating multiple security groups with this module, only tag the
-  #   # security group that Karpenter should utilize with the following tag
-  #   # (i.e. - at most, only one security group should have this tag in your account)
-  #   "karpenter.sh/discovery" = local.cluster_name
-  # }
   access_entries = {
     # One access entry with a policy associated
     ssorole = {
@@ -114,18 +108,7 @@ module "eks" {
   }
 }
 
-module "karpenter" {
-  source       = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git//modules/karpenter?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
-  cluster_name = module.eks.cluster_name
 
-  enable_v1_permissions           = true
-  enable_pod_identity             = true
-  create_pod_identity_association = true
-  # Attach additional IAM policies to the Karpenter node IAM role
-  node_iam_role_additional_policies = {
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
-}
 
 resource "helm_release" "argocd" {
   depends_on       = [module.eks]
@@ -138,25 +121,25 @@ resource "helm_release" "argocd" {
   values           = [file("${path.module}/helmvalues/argocd.yaml")]
 }
 
-resource "helm_release" "argocd_baseapp" {
-  depends_on       = [helm_release.argocd]
-  name             = "argocdbaseapp"
-  chart            = "${path.module}/../charts/baseapp"
-  namespace        = "argocd"
-  version          = "0.1.1"
-  create_namespace = true
-  set {
-    name  = "repository.url"
-    value = var.repository_url
-  }
+# resource "helm_release" "argocd_baseapp" {
+#   depends_on       = [helm_release.argocd]
+#   name             = "argocdbaseapp"
+#   chart            = "${path.module}/../charts/baseapp"
+#   namespace        = "argocd"
+#   version          = "0.1.1"
+#   create_namespace = true
+#   set {
+#     name  = "repository.url"
+#     value = var.repository_url
+#   }
 
-  set {
-    name  = "repository.branch"
-    value = var.repository_branch
-  }
+#   set {
+#     name  = "repository.branch"
+#     value = var.repository_branch
+#   }
 
-  set {
-    name  = "repository.path"
-    value = "apps/allapps"
-  }
-}
+#   set {
+#     name  = "repository.path"
+#     value = "apps/allapps"
+#   }
+# }
