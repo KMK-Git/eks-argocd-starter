@@ -69,25 +69,11 @@ module "eks" {
     nodegroup = {
       instance_types = ["m6i.large"]
 
-      min_size     = 2
-      max_size     = 2
-      desired_size = 2
+      min_size     = 3
+      max_size     = 3
+      desired_size = 3
 
       subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
-
-      labels = {
-        # Used to ensure Karpenter runs on nodes that it does not manage
-        "coreaddons" = "true"
-      }
-
-      taints = {
-        # Only critical addon pods should run on nodes not managed by Karpenter
-        coreaddons = {
-          key    = "CriticalAddonsOnly"
-          value  = "true"
-          effect = "NO_SCHEDULE"
-        }
-      }
     }
   }
   access_entries = {
