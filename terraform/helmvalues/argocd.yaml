@@ -1,0 +1,10 @@
+server:
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+global:
+  tolerations:
+    - key: CriticalAddonsOnly
+      value: "true"
+      effect: NoSchedule

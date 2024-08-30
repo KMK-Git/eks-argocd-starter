@@ -1,0 +1,47 @@
+name: "Terraform Apply"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        id: setup1
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.8.0"
+          terraform_wrapper: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/KubernetesStarterGitHubOIDC
+          role-session-name: github-deploy
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="bucket=$STATE_BUCKET_NAME" -backend-config="key=$STATE_BUCKET_KEY"
+        env:
+          STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
+          STATE_BUCKET_KEY: ${{ secrets.STATE_BUCKET_KEY }}
+
+      - name: Terraform Apply
+        id: plan
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_repository_url: ${{ github.server_url }}/${{ github.repository }}.git

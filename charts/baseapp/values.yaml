@@ -1,0 +1,15 @@
+# Default values for baseapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Repository in ArgoCD apps are hosted.
+repository:
+
+  # -- URL for repository
+  url: ""
+
+  # -- Target branch in repository.
+  branch: "main"
+
+  # -- Path in repository.
+  path: ""
