@@ -1,0 +1,12 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Details of AWS account in which ArgoCD cluster is being created
+aws:
+  # -- Details of AWS account in which ArgoCD cluster is being created
+  account:
+    # -- AWS account ID
+    id: ""
+
+    # -- AWS account partition
+    partition: "aws"

@@ -125,6 +125,24 @@ resource "helm_release" "argocd_baseapp" {
   }
 }
 
+resource "helm_release" "tfdependentresources" {
+  depends_on = [helm_release.argocd_baseapp]
+  name       = "tfdependentresources"
+  chart      = "${path.module}/../charts/tfdependentresources"
+  namespace  = "kube-system"
+  version    = "0.1.0"
+
+  set {
+    name  = "aws.account.id"
+    value = data.aws_caller_identity.current.account_id
+  }
+
+  set {
+    name  = "aws.account.partition"
+    value = data.aws_partition.current.partition
+  }
+}
+
 module "aws_lb_controller_role" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
 
