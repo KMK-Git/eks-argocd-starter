@@ -2,5 +2,8 @@ dependencies:
 - name: metrics-server
   repository: https://kubernetes-sigs.github.io/metrics-server
   version: 3.12.1
-digest: sha256:53e539dbfa57487cf77c1287aead5c498ee9a8805d10b5686e4bb87b936df0ff
-generated: "2024-08-30T22:24:56.138370628-04:00"
+- name: aws-load-balancer-controller
+  repository: https://aws.github.io/eks-charts
+  version: 1.8.2
+digest: sha256:c5eeeeb36617b61ac888a9aa8dfed798e859926cdaaee6b8b2dbdde8714caaf5
+generated: "2024-08-30T22:59:10.283627439-04:00"
