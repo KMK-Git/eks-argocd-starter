@@ -94,7 +94,37 @@ module "eks" {
   }
 }
 
+resource "aws_acm_certificate" "argocd" {
+  domain_name       = var.argocd_hostname
+  validation_method = "DNS"
+}
 
+data "aws_route53_zone" "argocd" {
+  name         = var.argocd_hostname
+  private_zone = false
+}
+
+resource "aws_route53_record" "argocd" {
+  for_each = {
+    for dvo in aws_acm_certificate.argocd.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.argocd.zone_id
+}
+
+resource "aws_acm_certificate_validation" "argocd" {
+  certificate_arn         = aws_acm_certificate.argocd.arn
+  validation_record_fqdns = [for record in aws_route53_record.argocd : record.fqdn]
+}
 
 resource "helm_release" "argocd" {
   depends_on       = [module.eks]
@@ -130,7 +160,7 @@ resource "helm_release" "tfdependentresources" {
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
-  version    = "0.2.0"
+  version    = "0.3.0"
 
   set {
     name  = "aws.account.id"
@@ -145,6 +175,11 @@ resource "helm_release" "tfdependentresources" {
   set {
     name  = "argocd.hostname"
     value = var.argocd_hostname
+  }
+
+  set {
+    name = "argocd.certificatearn"
+    value = aws_acm_certificate.argocd.arn
   }
 }
 

@@ -1,4 +1,5 @@
 {{- $hostname := .Values.argocd.hostname | required ".Values.argocd.hostname is required." -}}
+{{- $certificatearn := .Values.argocd.certificatearn | required ".Values.argocd.certificatearn is required." -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,6 +8,7 @@ metadata:
     # Use this annotation (which must match a service name) to route traffic to HTTP2 backends.
     alb.ingress.kubernetes.io/conditions.argogrpc: '[{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]'
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: '{{ $certificatearn }}'
   name: argocd
   namespace: argocd
 spec:

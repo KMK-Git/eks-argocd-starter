@@ -15,4 +15,6 @@ aws:
 argocd:
   # -- Hostname for ArgoCD ingress
   hostname: ""
+  # -- Certificate ARN for ArgoCD ingress
+  certificatearn: ""
 
