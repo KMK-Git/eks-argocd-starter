@@ -160,7 +160,7 @@ resource "helm_release" "tfdependentresources" {
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
-  version    = "0.4.0"
+  version    = "0.5.0"
 
   set {
     name  = "aws.account.id"
@@ -173,13 +173,18 @@ resource "helm_release" "tfdependentresources" {
   }
 
   set {
-    name  = "argocd.hostname"
+    name  = "argocdlb.hostname"
     value = local.argocd_hostname
   }
 
   set {
-    name  = "argocd.certificatearn"
+    name  = "argocdlb.certificatearn"
     value = aws_acm_certificate.argocd.arn
+  }
+
+  set {
+    name  = "argocdlb.subnetlist"
+    value = join(",", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
   }
 }
 

@@ -1,5 +1,6 @@
-{{- $hostname := .Values.argocd.hostname | required ".Values.argocd.hostname is required." -}}
-{{- $certificatearn := .Values.argocd.certificatearn | required ".Values.argocd.certificatearn is required." -}}
+{{- $hostname := .Values.argocdlb.hostname | required ".Values.argocdlb.hostname is required." -}}
+{{- $certificatearn := .Values.argocdlb.certificatearn | required ".Values.argocdlb.certificatearn is required." -}}
+{{- $subnetlist := .Values.argocdlb.subnetlist | required ".Values.argocdlb.subnetlist is required." -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -10,6 +11,7 @@ metadata:
     alb.ingress.kubernetes.io/conditions.argogrpc: '[{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]'
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: '{{ $certificatearn }}'
+    alb.ingress.kubernetes.io/subnets: '{{ $subnetlist }}'
   name: argocd
   namespace: argocd
 spec:

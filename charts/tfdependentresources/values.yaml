@@ -12,9 +12,11 @@ aws:
     partition: "aws"
 
 # Details of ArgoCD deployment
-argocd:
+argocdlb:
   # -- Hostname for ArgoCD ingress
   hostname: ""
   # -- Certificate ARN for ArgoCD ingress
   certificatearn: ""
+  # -- List of subnets for ArgoCD ingress
+  subnetlist: ""
 
