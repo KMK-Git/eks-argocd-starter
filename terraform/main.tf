@@ -156,7 +156,7 @@ resource "helm_release" "argocd_baseapp" {
 }
 
 resource "helm_release" "tfdependentresources" {
-  depends_on = [helm_release.argocd_baseapp]
+  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd]
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
@@ -178,7 +178,7 @@ resource "helm_release" "tfdependentresources" {
   }
 
   set {
-    name = "argocd.certificatearn"
+    name  = "argocd.certificatearn"
     value = aws_acm_certificate.argocd.arn
   }
 }
