@@ -1,8 +1,14 @@
 // General variables
-variable "argocd_hostname" {
+variable "argocd_domainname" {
   type        = string
-  description = "Hostname used for ArgoCD"
-  default     = "argocd.eks.kaustubhk.com"
+  description = "Domain used for ArgoCD"
+  default     = "eks.kaustubhk.com"
+}
+
+variable "argocd_hostname_prefix" {
+  type        = string
+  description = "Prefix added to domain used for ArgoCD"
+  default     = "argocd"
 }
 
 variable "name_prefix" {

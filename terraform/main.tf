@@ -95,12 +95,12 @@ module "eks" {
 }
 
 resource "aws_acm_certificate" "argocd" {
-  domain_name       = var.argocd_hostname
+  domain_name       = local.argocd_hostname
   validation_method = "DNS"
 }
 
 data "aws_route53_zone" "argocd" {
-  name         = var.argocd_hostname
+  name         = var.argocd_domainname
   private_zone = false
 }
 
@@ -174,7 +174,7 @@ resource "helm_release" "tfdependentresources" {
 
   set {
     name  = "argocd.hostname"
-    value = var.argocd_hostname
+    value = local.argocd_hostname
   }
 
   set {
