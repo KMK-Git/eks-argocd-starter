@@ -130,7 +130,7 @@ resource "helm_release" "tfdependentresources" {
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
-  version    = "0.1.0"
+  version    = "0.2.0"
 
   set {
     name  = "aws.account.id"
@@ -140,6 +140,11 @@ resource "helm_release" "tfdependentresources" {
   set {
     name  = "aws.account.partition"
     value = data.aws_partition.current.partition
+  }
+
+  set {
+    name  = "argocd.hostname"
+    value = var.argocd_hostname
   }
 }
 

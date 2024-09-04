@@ -1,4 +1,10 @@
 // General variables
+variable "argocd_hostname" {
+  type        = string
+  description = "Hostname used for ArgoCD"
+  default     = "argocd.eks.kaustubhk.com"
+}
+
 variable "name_prefix" {
   type        = string
   description = "Prefix used for resource names"

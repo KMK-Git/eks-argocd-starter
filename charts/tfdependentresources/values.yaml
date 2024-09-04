@@ -10,3 +10,9 @@ aws:
 
     # -- AWS account partition
     partition: "aws"
+
+# Details of ArgoCD deployment
+argocd:
+  # -- Hostname for ArgoCD ingress
+  hostname: ""
+
