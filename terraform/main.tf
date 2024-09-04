@@ -184,7 +184,7 @@ resource "helm_release" "tfdependentresources" {
 
   set {
     name  = "argocdlb.subnetlist"
-    value = join(",", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
+    value = join("\\,", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
   }
 }
 
