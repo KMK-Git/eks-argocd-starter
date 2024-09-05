@@ -160,7 +160,7 @@ resource "helm_release" "tfdependentresources" {
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
-  version    = "0.5.0"
+  version    = "0.6.0"
 
   set {
     name  = "aws.account.id"
@@ -225,7 +225,7 @@ module "external_dns_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["default:external-dns"]
+      namespace_service_accounts = ["kube-system:external-dns"]
     }
   }
 }
