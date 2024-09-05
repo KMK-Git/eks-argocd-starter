@@ -219,8 +219,8 @@ module "external_dns_role" {
 
   role_name = "${var.name_prefix}ExternalDNSRole"
 
-  attach_load_balancer_controller_policy = true
-  policy_name_prefix                     = var.name_prefix
+  attach_external_dns_policy = true
+  policy_name_prefix         = var.name_prefix
 
   oidc_providers = {
     main = {
