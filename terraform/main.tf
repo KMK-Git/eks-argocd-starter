@@ -160,7 +160,7 @@ resource "helm_release" "tfdependentresources" {
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
-  version    = "0.6.0"
+  version    = "0.8.0"
 
   set {
     name  = "aws.account.id"
