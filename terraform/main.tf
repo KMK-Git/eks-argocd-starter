@@ -24,6 +24,8 @@ module "vpc" {
 module "eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
+  depends_on = [module.vpc]
+
   cluster_name    = local.cluster_name
   cluster_version = var.cluster_version
 
