@@ -14,3 +14,4 @@ external-dns:
       value: us-east-1
   sources:
     - ingress
+  policy: sync
