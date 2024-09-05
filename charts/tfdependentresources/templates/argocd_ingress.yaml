@@ -12,6 +12,7 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: '{{ $certificatearn }}'
     alb.ingress.kubernetes.io/subnets: '{{ $subnetlist }}'
+    alb.ingress.kubernetes.io/scheme: 'internet-facing'
   name: argocd
   namespace: argocd
 spec:
