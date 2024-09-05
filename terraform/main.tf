@@ -113,7 +113,7 @@ resource "aws_route53_record" "argocd-ns" {
   name    = local.argocd_hostname
   type    = "NS"
   ttl     = "60"
-  records = aws_route53_zone.dev.name_servers
+  records = aws_route53_zone.argocd.name_servers
 }
 
 resource "aws_route53_record" "argocd" {
@@ -130,7 +130,7 @@ resource "aws_route53_record" "argocd" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = data.aws_route53_zone.argocd.zone_id
+  zone_id         = aws_route53_zone.argocd.zone_id
 }
 
 resource "aws_acm_certificate_validation" "argocd" {
