@@ -2,13 +2,13 @@
 variable "argocd_domainname" {
   type        = string
   description = "Domain used for ArgoCD"
-  default     = "kaustubhk.com"
+  default     = "eks.kaustubhk.com"
 }
 
 variable "argocd_hostname_prefix" {
   type        = string
   description = "Prefix added to domain used for ArgoCD"
-  default     = "argocd-eks"
+  default     = "argocd"
 }
 
 variable "name_prefix" {

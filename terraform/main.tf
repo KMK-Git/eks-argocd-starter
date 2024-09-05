@@ -99,21 +99,9 @@ resource "aws_acm_certificate" "argocd" {
   validation_method = "DNS"
 }
 
-data "aws_route53_zone" "apex" {
+data "aws_route53_zone" "argocd" {
   name         = var.argocd_domainname
   private_zone = false
-}
-
-resource "aws_route53_zone" "argocd" {
-  name = local.argocd_hostname
-}
-
-resource "aws_route53_record" "argocd-ns" {
-  zone_id = data.aws_route53_zone.apex.zone_id
-  name    = local.argocd_hostname
-  type    = "NS"
-  ttl     = "60"
-  records = aws_route53_zone.dev.name_servers
 }
 
 resource "aws_route53_record" "argocd" {
