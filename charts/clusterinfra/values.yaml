@@ -3,3 +3,14 @@ aws-load-balancer-controller:
   serviceAccount:
     create: false
     name: aws-load-balancer-controller
+external-dns:
+  serviceAccount:
+    create: false
+    name: external-dns
+  provider:
+    name: aws
+  env:
+    - name: AWS_DEFAULT_REGION
+      value: us-east-1
+  sources:
+    - ingress

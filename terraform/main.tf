@@ -156,7 +156,7 @@ resource "helm_release" "argocd_baseapp" {
 }
 
 resource "helm_release" "tfdependentresources" {
-  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd]
+  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd, module.aws_lb_controller_role, module.external_dns_role]
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
@@ -170,6 +170,16 @@ resource "helm_release" "tfdependentresources" {
   set {
     name  = "aws.account.partition"
     value = data.aws_partition.current.partition
+  }
+
+  set {
+    name  = "aws.lb_role_name"
+    value = "${var.name_prefix}LBControllerRole"
+  }
+
+  set {
+    name  = "aws.external_dns_role_name"
+    value = "${var.name_prefix}ExternalDNSRole"
   }
 
   set {
@@ -191,14 +201,31 @@ resource "helm_release" "tfdependentresources" {
 module "aws_lb_controller_role" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
 
-  role_name = "AmazonEKSLoadBalancerControllerRole"
+  role_name = "${var.name_prefix}LBControllerRole"
 
   attach_load_balancer_controller_policy = true
+  policy_name_prefix                     = var.name_prefix
 
   oidc_providers = {
     main = {
       provider_arn               = module.eks.oidc_provider_arn
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+}
+
+module "external_dns_role" {
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
+
+  role_name = "${var.name_prefix}ExternalDNSRole"
+
+  attach_load_balancer_controller_policy = true
+  policy_name_prefix                     = var.name_prefix
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["default:external-dns"]
     }
   }
 }

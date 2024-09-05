@@ -11,6 +11,12 @@ aws:
     # -- AWS account partition
     partition: "aws"
 
+  # -- Name of role used by LB Controller
+  lb_role_name: ""
+
+  # -- Name of role used by External DNS Controller
+  external_dns_role_name: ""
+
 # Details of ArgoCD deployment
 argocdlb:
   # -- Hostname for ArgoCD ingress
@@ -19,4 +25,3 @@ argocdlb:
   certificatearn: ""
   # -- List of subnets for ArgoCD ingress
   subnetlist: ""
-
