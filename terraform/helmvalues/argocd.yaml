@@ -1,5 +1,7 @@
 server:
   replicas: 2
+  service:
+    type: NodePort
 
 redis-ha:
   enabled: true
