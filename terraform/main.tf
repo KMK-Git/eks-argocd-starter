@@ -218,12 +218,12 @@ resource "helm_release" "lbcontroller_serviceaccount" {
   }
 
   set {
-    name  = "serviceAccount.labels.app.kubernetes.io/component"
+    name  = "serviceAccount.labels.app\\.kubernetes\\.io/component"
     value = "controller"
   }
 
   set {
-    name  = "serviceAccount.labels.app.kubernetes.io/name"
+    name  = "serviceAccount.labels.app\\.kubernetes\\.io/name"
     value = "aws-load-balancer-controller"
   }
 }
