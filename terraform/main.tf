@@ -258,7 +258,7 @@ module "external_dns_role" {
 # }
 
 resource "helm_release" "tfdependentresources" {
-  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd, helm_release.lbcontroller_serviceaccount, helm_release.external_dns_serviceaccount]
+  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd]
   name       = "tfdependentresources"
   chart      = "${path.module}/../charts/tfdependentresources"
   namespace  = "kube-system"
