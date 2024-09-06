@@ -1,22 +1,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Details of AWS account in which ArgoCD cluster is being created
-aws:
-  # -- Details of AWS account in which ArgoCD cluster is being created
-  account:
-    # -- AWS account ID
-    id: ""
-
-    # -- AWS account partition
-    partition: "aws"
-
-  # -- Name of role used by LB Controller
-  lb_role_name: ""
-
-  # -- Name of role used by External DNS Controller
-  external_dns_role_name: ""
-
 # Details of ArgoCD deployment
 argocdlb:
   # -- Hostname for ArgoCD ingress

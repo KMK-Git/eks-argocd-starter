@@ -157,49 +157,6 @@ resource "helm_release" "argocd_baseapp" {
   }
 }
 
-resource "helm_release" "tfdependentresources" {
-  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd, module.aws_lb_controller_role, module.external_dns_role]
-  name       = "tfdependentresources"
-  chart      = "${path.module}/../charts/tfdependentresources"
-  namespace  = "kube-system"
-  version    = "0.8.0"
-
-  set {
-    name  = "aws.account.id"
-    value = data.aws_caller_identity.current.account_id
-  }
-
-  set {
-    name  = "aws.account.partition"
-    value = data.aws_partition.current.partition
-  }
-
-  set {
-    name  = "aws.lb_role_name"
-    value = "${var.name_prefix}LBControllerRole"
-  }
-
-  set {
-    name  = "aws.external_dns_role_name"
-    value = "${var.name_prefix}ExternalDNSRole"
-  }
-
-  set {
-    name  = "argocdlb.hostname"
-    value = local.argocd_hostname
-  }
-
-  set {
-    name  = "argocdlb.certificatearn"
-    value = aws_acm_certificate.argocd.arn
-  }
-
-  set {
-    name  = "argocdlb.subnetlist"
-    value = join("\\,", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
-  }
-}
-
 module "aws_lb_controller_role" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
 
@@ -229,5 +186,96 @@ module "external_dns_role" {
       provider_arn               = module.eks.oidc_provider_arn
       namespace_service_accounts = ["kube-system:external-dns"]
     }
+  }
+}
+
+resource "helm_release" "lbcontroller_serviceaccount" {
+  depends_on       = [helm_release.argocd_baseapp, module.aws_lb_controller_role]
+  name             = "lbcontroller_serviceaccount"
+  chart            = "${path.module}/../charts/eksserviceaccount"
+  namespace        = "kube-system"
+  version          = "0.1.0"
+  create_namespace = false
+
+  set {
+    name  = "aws.account.id"
+    value = data.aws_caller_identity.current.account_id
+  }
+
+  set {
+    name  = "aws.account.partition"
+    value = data.aws_partition.current.partition
+  }
+
+  set {
+    name  = "aws.role_name"
+    value = "${var.name_prefix}LBControllerRole"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "serviceAccount.labels.app.kubernetes.io/component"
+    value = "controller"
+  }
+
+  set {
+    name  = "serviceAccount.labels.app.kubernetes.io/name"
+    value = "aws-load-balancer-controller"
+  }
+}
+
+resource "helm_release" "external_dns_serviceaccount" {
+  depends_on       = [helm_release.argocd_baseapp, module.external_dns_role]
+  name             = "external_dns_serviceaccount"
+  chart            = "${path.module}/../charts/eksserviceaccount"
+  namespace        = "kube-system"
+  version          = "0.1.0"
+  create_namespace = false
+
+  set {
+    name  = "aws.account.id"
+    value = data.aws_caller_identity.current.account_id
+  }
+
+  set {
+    name  = "aws.account.partition"
+    value = data.aws_partition.current.partition
+  }
+
+  set {
+    name  = "aws.role_name"
+    value = "${var.name_prefix}ExternalDNSRole"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "external-dns"
+  }
+}
+
+resource "helm_release" "tfdependentresources" {
+  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd, helm_release.lbcontroller_serviceaccount, helm_release.external_dns_serviceaccount]
+  name       = "tfdependentresources"
+  chart      = "${path.module}/../charts/tfdependentresources"
+  namespace  = "kube-system"
+  version    = "0.9.0"
+
+  set {
+    name  = "argocdlb.hostname"
+    value = local.argocd_hostname
+  }
+
+  set {
+    name  = "argocdlb.certificatearn"
+    value = aws_acm_certificate.argocd.arn
+  }
+
+  set {
+    name  = "argocdlb.subnetlist"
+    value = join("\\,", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
   }
 }
