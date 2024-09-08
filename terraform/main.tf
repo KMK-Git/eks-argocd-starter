@@ -173,10 +173,10 @@ resource "helm_release" "argocd" {
   values           = [file("${path.module}/helmvalues/argocd.yaml")]
 }
 
-resource "helm_release" "argocd_baseresources" {
+resource "helm_release" "argocd_baseapp" {
   depends_on       = [helm_release.argocd]
-  name             = "argocdbaseresources"
-  chart            = "${path.module}/../charts/baseresources"
+  name             = "argocdbaseapp"
+  chart            = "${path.module}/../charts/baseapp"
   namespace        = "argocd"
   version          = "0.1.4"
   create_namespace = true
