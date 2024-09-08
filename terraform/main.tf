@@ -150,7 +150,7 @@ module "aws_lb_controller_service_account" {
   service_account_name = "aws-load-balancer-controller"
 }
 
-module "externaldns_service_account" {
+module "external_dns_service_account" {
   depends_on                 = [module.eks]
   source                     = "./modules/eksserviceaccount"
   account_id                 = data.aws_caller_identity.current.account_id
@@ -192,7 +192,7 @@ resource "helm_release" "argocd_baseresources" {
 }
 
 resource "helm_release" "argocdingress" {
-  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.aws_lb_controller_service_account, module.external_dns_serviceaccount]
+  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.aws_lb_controller_service_account, module.external_dns_service_account]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
