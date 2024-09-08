@@ -128,6 +128,40 @@ resource "aws_acm_certificate_validation" "argocd" {
   validation_record_fqdns = [for record in aws_route53_record.argocd : record.fqdn]
 }
 
+module "aws_lb_controller_service_account" {
+  depends_on                             = [module.eks]
+  source                                 = "./modules/eksserviceaccount"
+  account_id                             = data.aws_caller_identity.current.account_id
+  attach_load_balancer_controller_policy = true
+  dynamic_chart_options = [
+    {
+      name  = "serviceAccount.labels.app\\.kubernetes\\.io/component"
+      value = "controller"
+    },
+    {
+      name  = "serviceAccount.labels.app\\.kubernetes\\.io/name"
+      value = "aws-load-balancer-controller"
+    }
+  ]
+  name_prefix          = var.name_prefix
+  oidc_provider_arn    = module.eks.oidc_provider_arn
+  partition            = data.aws_partition.current.partition
+  role_name            = "${var.name_prefix}LBControllerRole"
+  service_account_name = "aws-load-balancer-controller"
+}
+
+module "externaldns_service_account" {
+  depends_on                 = [module.eks]
+  source                     = "./modules/eksserviceaccount"
+  account_id                 = data.aws_caller_identity.current.account_id
+  attach_external_dns_policy = true
+  name_prefix                = var.name_prefix
+  oidc_provider_arn          = module.eks.oidc_provider_arn
+  partition                  = data.aws_partition.current.partition
+  role_name                  = "${var.name_prefix}ExternalDNSRole"
+  service_account_name       = "external-dns"
+}
+
 resource "helm_release" "argocd" {
   depends_on       = [module.eks]
   name             = "argocd"
@@ -139,10 +173,10 @@ resource "helm_release" "argocd" {
   values           = [file("${path.module}/helmvalues/argocd.yaml")]
 }
 
-resource "helm_release" "argocd_baseapp" {
+resource "helm_release" "argocd_baseresources" {
   depends_on       = [helm_release.argocd]
-  name             = "argocdbaseapp"
-  chart            = "${path.module}/../charts/baseapp"
+  name             = "argocdbaseresources"
+  chart            = "${path.module}/../charts/baseresources"
   namespace        = "argocd"
   version          = "0.1.4"
   create_namespace = true
@@ -157,110 +191,10 @@ resource "helm_release" "argocd_baseapp" {
   }
 }
 
-module "aws_lb_controller_role" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
-
-  role_name = "${var.name_prefix}LBControllerRole"
-
-  attach_load_balancer_controller_policy = true
-  policy_name_prefix                     = var.name_prefix
-
-  oidc_providers = {
-    main = {
-      provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
-    }
-  }
-}
-
-module "external_dns_role" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
-
-  role_name = "${var.name_prefix}ExternalDNSRole"
-
-  attach_external_dns_policy = true
-  policy_name_prefix         = var.name_prefix
-
-  oidc_providers = {
-    main = {
-      provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:external-dns"]
-    }
-  }
-}
-
-resource "helm_release" "lbcontroller_serviceaccount" {
-  depends_on       = [helm_release.argocd_baseapp, module.aws_lb_controller_role]
-  name             = "lbcontroller-serviceaccount"
-  chart            = "${path.module}/../charts/eksserviceaccount"
-  namespace        = "kube-system"
-  version          = "0.1.0"
-  create_namespace = false
-
-  set {
-    name  = "aws.account.id"
-    value = data.aws_caller_identity.current.account_id
-  }
-
-  set {
-    name  = "aws.account.partition"
-    value = data.aws_partition.current.partition
-  }
-
-  set {
-    name  = "aws.role_name"
-    value = "${var.name_prefix}LBControllerRole"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
-  }
-
-  set {
-    name  = "serviceAccount.labels.app\\.kubernetes\\.io/component"
-    value = "controller"
-  }
-
-  set {
-    name  = "serviceAccount.labels.app\\.kubernetes\\.io/name"
-    value = "aws-load-balancer-controller"
-  }
-}
-
-resource "helm_release" "external_dns_serviceaccount" {
-  depends_on       = [helm_release.argocd_baseapp, module.external_dns_role]
-  name             = "external-dns-serviceaccount"
-  chart            = "${path.module}/../charts/eksserviceaccount"
-  namespace        = "kube-system"
-  version          = "0.1.0"
-  create_namespace = false
-
-  set {
-    name  = "aws.account.id"
-    value = data.aws_caller_identity.current.account_id
-  }
-
-  set {
-    name  = "aws.account.partition"
-    value = data.aws_partition.current.partition
-  }
-
-  set {
-    name  = "aws.role_name"
-    value = "${var.name_prefix}ExternalDNSRole"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "external-dns"
-  }
-}
-
-resource "helm_release" "tfdependentresources" {
-  depends_on = [helm_release.argocd_baseapp, aws_acm_certificate_validation.argocd, helm_release.lbcontroller_serviceaccount, helm_release.external_dns_serviceaccount]
-  name       = "tfdependentresources"
-  chart      = "${path.module}/../charts/tfdependentresources"
+resource "helm_release" "argocdingress" {
+  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.lbcontroller_serviceaccount, module.external_dns_serviceaccount]
+  name       = "argocdingress"
+  chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
   version    = "0.9.0"
 

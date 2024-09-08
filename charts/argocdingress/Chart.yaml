@@ -1,6 +1,6 @@
 apiVersion: v2
-name: baseapp
-description: A Helm chart which defines resources used for cluster setup which are directly dependent on Terraform output values
+name: argocdingress
+description: A Helm chart which deploys ingress (AWS ALB) used by ArgoCD
 
 # A chart can be either an 'application' or a 'library' chart.
 #

@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: clusterinfra
+  name: argocdclusterinfra
   namespace: argocd
 spec:
   project: argocdcluster-app-project
