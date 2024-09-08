@@ -18,8 +18,8 @@ variable "attach_external_dns_policy" {
 variable "dynamic_chart_options" {
   description = "List of additional options that need to be passed to service account Helm chart"
   type = list(object({
-    name  = number
-    value = number
+    name  = string
+    value = string
   }))
   default = []
 }

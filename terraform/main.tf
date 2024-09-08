@@ -192,7 +192,7 @@ resource "helm_release" "argocd_baseresources" {
 }
 
 resource "helm_release" "argocdingress" {
-  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.lbcontroller_serviceaccount, module.external_dns_serviceaccount]
+  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.aws_lb_controller_service_account, module.external_dns_serviceaccount]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
