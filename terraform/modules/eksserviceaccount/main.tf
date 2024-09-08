@@ -45,7 +45,7 @@ resource "helm_release" "serviceaccount" {
   dynamic "set" {
     for_each = var.dynamic_chart_options
     content {
-      name = set.value["name"]
+      name  = set.value["name"]
       value = set.value["value"]
     }
   }

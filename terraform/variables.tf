@@ -56,6 +56,18 @@ variable "eks_vpc_cni_custom_networking" {
   default     = true
 }
 
+variable "use_managed_nat" {
+  description = "Use AWS managed NAT. If false, fck-nat is used instead"
+  type        = bool
+  default     = false
+}
+
+variable "use_ha_nat" {
+  description = "Use NAT in HA mode"
+  type        = bool
+  default     = false
+}
+
 variable "vpc_cidr" {
   type        = string
   description = "CIDR for VPC"

@@ -18,16 +18,28 @@ module "vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
-  one_nat_gateway_per_az = false
+  enable_nat_gateway     = var.use_managed_nat
+  single_nat_gateway     = var.use_managed_nat ? null : !var.use_ha_nat
+  one_nat_gateway_per_az = var.use_managed_nat ? null : true
+}
+
+module "fcknat" {
+  count     = var.use_managed_nat ? 0 : (var.use_ha_nat ? length(var.availability_zones) : 1)
+  source    = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git?ref=88346ff36b439014f97957bcd2df7f099f54871e"
+  name      = "fck-nat"
+  vpc_id    = module.vpc.vpc_id
+  subnet_id = module.vpc.public_subnets[count.index]
+  ha_mode   = true # Enables high-availability mode
+
+  update_route_tables = true
+  route_tables_ids    = { for route_table_id in module.vpc.public_route_table_ids : split("-", route_table_id)[1] => route_table_id }
 }
 
 
 module "eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
-  depends_on = [module.vpc]
+  depends_on = [module.vpc, module.fcknat]
 
   cluster_name    = local.cluster_name
   cluster_version = var.cluster_version

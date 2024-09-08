@@ -20,7 +20,8 @@
 |------|--------|---------|
 | <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ./modules/eksserviceaccount | n/a |
 | <a name="module_eks"></a> [eks](#module\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_externaldns_service_account"></a> [externaldns\_service\_account](#module\_externaldns\_service\_account) | ./modules/eksserviceaccount | n/a |
+| <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ./modules/eksserviceaccount | n/a |
+| <a name="module_fcknat"></a> [fcknat](#module\_fcknat) | git::https://github.com/RaJiska/terraform-aws-fck-nat.git | 88346ff36b439014f97957bcd2df7f099f54871e |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git | e226cc15a7b8f62fd0e108792fea66fa85bcb4b9 |
 
 ## Resources
@@ -31,7 +32,7 @@
 | [aws_acm_certificate_validation.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_route53_record.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [helm_release.argocd](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [helm_release.argocd_baseresources](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [helm_release.argocd_baseapp](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.argocdingress](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
@@ -54,9 +55,11 @@
 | <a name="input_repository_branch"></a> [repository\_branch](#input\_repository\_branch) | Repository branch used as target for ArgoCD Apps | `string` | `"main"` | no |
 | <a name="input_repository_url"></a> [repository\_url](#input\_repository\_url) | Repository url where ArgoCD Apps are stored | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags for all resources | `map(string)` | <pre>{<br>  "Environment": "Sample"<br>}</pre> | no |
+| <a name="input_use_ha_nat"></a> [use\_ha\_nat](#input\_use\_ha\_nat) | Use NAT in HA mode | `bool` | `false` | no |
+| <a name="input_use_managed_nat"></a> [use\_managed\_nat](#input\_use\_managed\_nat) | Use AWS managed NAT. If false, fck-nat is used instead | `bool` | `false` | no |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | CIDR for VPC | `string` | `"10.0.0.0/16"` | no |
-| <a name="input_vpc_private_cidrs"></a> [vpc\_private\_cidrs](#input\_vpc\_private\_cidrs) | CIDRs for VPC private subnets | `list(string)` | `[]` | no |
-| <a name="input_vpc_public_cidrs"></a> [vpc\_public\_cidrs](#input\_vpc\_public\_cidrs) | CIDRs for VPC public subnets | `list(string)` | <pre>[<br>  "10.0.0.0/20",<br>  "10.0.16.0/20",<br>  "10.0.32.0/20",<br>  "10.0.48.0/20"<br>]</pre> | no |
+| <a name="input_vpc_private_cidrs"></a> [vpc\_private\_cidrs](#input\_vpc\_private\_cidrs) | CIDRs for VPC private subnets | `list(string)` | <pre>[<br>  "10.0.0.0/20",<br>  "10.0.16.0/20",<br>  "10.0.32.0/20",<br>  "10.0.48.0/20"<br>]</pre> | no |
+| <a name="input_vpc_public_cidrs"></a> [vpc\_public\_cidrs](#input\_vpc\_public\_cidrs) | CIDRs for VPC public subnets | `list(string)` | <pre>[<br>  "10.0.64.0/20",<br>  "10.0.80.0/20",<br>  "10.0.96.0/20",<br>  "10.0.112.0/20"<br>]</pre> | no |
 
 ## Outputs
 
