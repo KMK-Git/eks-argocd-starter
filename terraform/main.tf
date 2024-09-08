@@ -25,7 +25,7 @@ module "vpc" {
 
 module "fcknat" {
   count     = var.use_managed_nat ? 0 : (var.use_ha_nat ? length(var.availability_zones) : 1)
-  source    = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git?ref=88346ff36b439014f97957bcd2df7f099f54871e"
+  source    = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git?ref=9377bf9247c96318b99273eb2978d1afce8cf0eb"
   name      = "fck-nat"
   vpc_id    = module.vpc.vpc_id
   subnet_id = module.vpc.public_subnets[count.index]

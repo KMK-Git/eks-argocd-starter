@@ -21,7 +21,7 @@
 | <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ./modules/eksserviceaccount | n/a |
 | <a name="module_eks"></a> [eks](#module\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
 | <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ./modules/eksserviceaccount | n/a |
-| <a name="module_fcknat"></a> [fcknat](#module\_fcknat) | git::https://github.com/RaJiska/terraform-aws-fck-nat.git | 88346ff36b439014f97957bcd2df7f099f54871e |
+| <a name="module_fcknat"></a> [fcknat](#module\_fcknat) | git::https://github.com/RaJiska/terraform-aws-fck-nat.git | 9377bf9247c96318b99273eb2978d1afce8cf0eb |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git | e226cc15a7b8f62fd0e108792fea66fa85bcb4b9 |
 
 ## Resources
