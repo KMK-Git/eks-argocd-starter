@@ -32,7 +32,7 @@ module "fcknat" {
   ha_mode   = true # Enables high-availability mode
 
   update_route_tables = true
-  route_tables_ids    = { for idx, route_table_id in module.vpc.public_route_table_ids : idx => route_table_id }
+  route_tables_ids    = { for idx, route_table_id in module.vpc.private_route_table_ids : idx => route_table_id }
 }
 
 
