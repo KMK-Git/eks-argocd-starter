@@ -17,7 +17,10 @@ module "vpc" {
 
   enable_dns_support   = true
   enable_dns_hostnames = true
-  enable_nat_gateway   = false
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+  one_nat_gateway_per_az = false
 }
 
 
@@ -59,7 +62,7 @@ module "eks" {
   }
 
   vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
+  subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
   control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
   cluster_ip_family        = var.cluster_ip_family
 
