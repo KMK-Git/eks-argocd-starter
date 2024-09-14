@@ -86,9 +86,9 @@ module "eks" {
     nodegroup = {
       instance_types = ["m6i.large"]
 
-      min_size     = 3
-      max_size     = 3
-      desired_size = 3
+      min_size     = 2
+      max_size     = 2
+      desired_size = 2
 
       subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
     }
