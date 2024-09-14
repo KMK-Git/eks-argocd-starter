@@ -87,20 +87,29 @@ variable "vpc_public_cidrs" {
 }
 
 // Cluster variables
-variable "cluster_version" {
-  type        = string
-  description = "Kubernetes <major>.<minor> version to use for the EKS cluster"
-  default     = "1.30"
+variable "application_eks_clusters" {
+  type = list(object({
+    cluster_name                      = string
+    cluster_version                   = string
+    publicly_accessible_cluster       = bool
+    publicly_accessible_cluster_cidrs = list(string)
+  }))
+  description = "Details of EKS clusters managed by Central EKS cluster"
+  default     = []
 }
 
-variable "publicly_accessible_cluster" {
-  type        = bool
-  description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled"
-  default     = true
-}
-
-variable "publicly_accessible_cluster_cidrs" {
-  type        = list(string)
-  description = "List of CIDR blocks which can access the Amazon EKS public API server endpoint"
-  default     = ["0.0.0.0/0"]
+variable "central_eks_cluster" {
+  type = object({
+    cluster_name                      = string
+    cluster_version                   = string
+    publicly_accessible_cluster       = bool
+    publicly_accessible_cluster_cidrs = list(string)
+  })
+  description = "Details of Central EKS cluster"
+  default = {
+    cluster_name                      = "argocdstartercluster"
+    cluster_version                   = "1.30"
+    publicly_accessible_cluster       = true
+    publicly_accessible_cluster_cidrs = ["0.0.0.0/0"]
+  }
 }

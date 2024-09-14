@@ -36,35 +36,118 @@ module "fcknat" {
 }
 
 
-module "eks" {
+module "central_eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
   depends_on = [module.vpc, module.fcknat]
 
-  cluster_name    = local.cluster_name
-  cluster_version = var.cluster_version
+  cluster_name    = var.central_eks_cluster.cluster_name
+  cluster_version = var.central_eks_cluster.cluster_version
 
-  cluster_endpoint_public_access       = var.publicly_accessible_cluster
-  cluster_endpoint_public_access_cidrs = var.publicly_accessible_cluster_cidrs
+  cluster_endpoint_public_access       = var.central_eks_cluster.publicly_accessible_cluster
+  cluster_endpoint_public_access_cidrs = var.central_eks_cluster.publicly_accessible_cluster ? var.central_eks_cluster.publicly_accessible_cluster_cidrs : null
 
   cluster_addons = {
     coredns = {
       before_compute = true
+      most_recent    = true
     }
     eks-pod-identity-agent = {
       before_compute = true
+      most_recent    = true
     }
     kube-proxy = {
       before_compute = true
+      most_recent    = true
     }
     vpc-cni = {
       before_compute = true
-      most_recent    = true # To ensure access to the latest settings provided
+      most_recent    = true
       configuration_values = jsonencode({
         eniConfig = var.eks_vpc_cni_custom_networking ? {
           create  = true
           region  = data.aws_region.current.name
-          subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.eks.node_security_group_id], id : subnet_id } }
+          subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.central_eks.node_security_group_id], id : subnet_id } }
+        } : null
+        env = {
+          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
+          ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
+      } })
+    }
+  }
+
+  vpc_id                   = module.vpc.vpc_id
+  subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
+  control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
+  cluster_ip_family        = var.cluster_ip_family
+
+  # Cluster access entry
+  # To add the current caller identity as an administrator
+  enable_cluster_creator_admin_permissions = true
+
+  eks_managed_node_groups = {
+    nodegroup = {
+      instance_types = ["m6i.large"]
+
+      min_size     = 2
+      max_size     = 2
+      desired_size = 2
+
+      subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
+    }
+  }
+  access_entries = {
+    # One access entry with a policy associated
+    ssorole = {
+      kubernetes_groups = []
+      principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
+
+      policy_associations = {
+        example = {
+          policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
+}
+
+module "application_eks" {
+  count = length(var.application_eks_clusters)
+
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
+
+  depends_on = [module.vpc, module.fcknat]
+
+  cluster_name    = var.application_eks_clusters[count.index].cluster_name
+  cluster_version = var.application_eks_clusters[count.index].cluster_version
+
+  cluster_endpoint_public_access       = var.application_eks_clusters[count.index].publicly_accessible_cluster
+  cluster_endpoint_public_access_cidrs = var.application_eks_clusters[count.index].publicly_accessible_cluster ? var.application_eks_clusters[count.index].publicly_accessible_cluster_cidrs : null
+
+  cluster_addons = {
+    coredns = {
+      before_compute = true
+      most_recent    = true
+    }
+    eks-pod-identity-agent = {
+      before_compute = true
+      most_recent    = true
+    }
+    kube-proxy = {
+      before_compute = true
+      most_recent    = true
+    }
+    vpc-cni = {
+      before_compute = true
+      most_recent    = true
+      configuration_values = jsonencode({
+        eniConfig = var.eks_vpc_cni_custom_networking ? {
+          create  = true
+          region  = data.aws_region.current.name
+          subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.application_eks[count.index].node_security_group_id], id : subnet_id } }
         } : null
         env = {
           AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
@@ -144,7 +227,7 @@ resource "aws_acm_certificate_validation" "argocd" {
 }
 
 module "aws_lb_controller_service_account" {
-  depends_on                             = [module.eks]
+  depends_on                             = [module.central_eks, module.application_eks]
   source                                 = "./modules/eksserviceaccount"
   account_id                             = data.aws_caller_identity.current.account_id
   attach_load_balancer_controller_policy = true
@@ -159,26 +242,26 @@ module "aws_lb_controller_service_account" {
     }
   ]
   name_prefix          = var.name_prefix
-  oidc_provider_arn    = module.eks.oidc_provider_arn
+  oidc_provider_arn    = concat([module.central_eks.oidc_provider_arn], module.application_eks[*].oidc_provider_arn)
   partition            = data.aws_partition.current.partition
   role_name            = "${var.name_prefix}LBControllerRole"
   service_account_name = "aws-load-balancer-controller"
 }
 
 module "external_dns_service_account" {
-  depends_on                 = [module.eks]
+  depends_on                 = [module.central_eks, module.application_eks]
   source                     = "./modules/eksserviceaccount"
   account_id                 = data.aws_caller_identity.current.account_id
   attach_external_dns_policy = true
   name_prefix                = var.name_prefix
-  oidc_provider_arn          = module.eks.oidc_provider_arn
+  oidc_provider_arn          = concat([module.central_eks.oidc_provider_arn], module.application_eks[*].oidc_provider_arn)
   partition                  = data.aws_partition.current.partition
   role_name                  = "${var.name_prefix}ExternalDNSRole"
   service_account_name       = "external-dns"
 }
 
 resource "helm_release" "argocd" {
-  depends_on       = [module.eks]
+  depends_on       = [module.central_eks]
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"

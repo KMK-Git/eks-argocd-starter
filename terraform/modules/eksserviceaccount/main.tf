@@ -7,12 +7,10 @@ module "controller_role" {
   attach_external_dns_policy             = var.attach_external_dns_policy
   policy_name_prefix                     = var.name_prefix
 
-  oidc_providers = {
-    main = {
-      provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["${var.namespace}:${var.service_account_name}"]
-    }
-  }
+  oidc_providers = { for idx, arn in var.oidc_provider_arn : "i${idx}" => {
+    provider_arn               = arn
+    namespace_service_accounts = ["${var.namespace}:${var.service_account_name}"]
+  } }
 }
 
 resource "helm_release" "serviceaccount" {
