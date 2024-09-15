@@ -4,42 +4,11 @@ https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/karpenter-mng/
 https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/karpenter/main.tf
 */
 
-module "vpc" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=e226cc15a7b8f62fd0e108792fea66fa85bcb4b9"
 
-  name = "${var.name_prefix}vpc"
-  cidr = var.vpc_cidr
-
-  azs                     = var.availability_zones
-  private_subnets         = var.vpc_private_cidrs
-  public_subnets          = var.vpc_public_cidrs
-  map_public_ip_on_launch = true
-
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  enable_nat_gateway     = var.use_managed_nat
-  single_nat_gateway     = var.use_managed_nat ? null : !var.use_ha_nat
-  one_nat_gateway_per_az = var.use_managed_nat ? null : true
-}
-
-module "fcknat" {
-  count     = var.use_managed_nat ? 0 : (var.use_ha_nat ? length(var.availability_zones) : 1)
-  source    = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git?ref=9377bf9247c96318b99273eb2978d1afce8cf0eb"
-  name      = "fck-nat"
-  vpc_id    = module.vpc.vpc_id
-  subnet_id = module.vpc.public_subnets[count.index]
-  ha_mode   = true # Enables high-availability mode
-
-  update_route_tables = true
-  route_tables_ids    = { for idx, route_table_id in module.vpc.private_route_table_ids : idx => route_table_id }
-}
 
 
 module "central_eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
-
-  depends_on = [module.vpc, module.fcknat]
 
   cluster_name    = var.central_eks_cluster.cluster_name
   cluster_version = var.central_eks_cluster.cluster_version
@@ -76,7 +45,7 @@ module "central_eks" {
     }
   }
 
-  vpc_id                   = module.vpc.vpc_id
+  vpc_id                   = data.aws_vpc.vpc.id
   subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
   control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
   cluster_ip_family        = var.cluster_ip_family
@@ -114,85 +83,85 @@ module "central_eks" {
   }
 }
 
-module "application_eks" {
-  count = length(var.application_eks_clusters)
+# module "application_eks" {
+#   count = length(var.application_eks_clusters)
 
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
+#   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
-  depends_on = [module.vpc, module.fcknat]
+#   depends_on = [module.vpc, module.fcknat]
 
-  cluster_name    = var.application_eks_clusters[count.index].cluster_name
-  cluster_version = var.application_eks_clusters[count.index].cluster_version
+#   cluster_name    = var.application_eks_clusters[count.index].cluster_name
+#   cluster_version = var.application_eks_clusters[count.index].cluster_version
 
-  cluster_endpoint_public_access       = var.application_eks_clusters[count.index].publicly_accessible_cluster
-  cluster_endpoint_public_access_cidrs = var.application_eks_clusters[count.index].publicly_accessible_cluster ? var.application_eks_clusters[count.index].publicly_accessible_cluster_cidrs : null
+#   cluster_endpoint_public_access       = var.application_eks_clusters[count.index].publicly_accessible_cluster
+#   cluster_endpoint_public_access_cidrs = var.application_eks_clusters[count.index].publicly_accessible_cluster ? var.application_eks_clusters[count.index].publicly_accessible_cluster_cidrs : null
 
-  cluster_addons = {
-    coredns = {
-      before_compute = true
-      most_recent    = true
-    }
-    eks-pod-identity-agent = {
-      before_compute = true
-      most_recent    = true
-    }
-    kube-proxy = {
-      before_compute = true
-      most_recent    = true
-    }
-    vpc-cni = {
-      before_compute = true
-      most_recent    = true
-      configuration_values = jsonencode({
-        eniConfig = var.eks_vpc_cni_custom_networking ? {
-          create  = true
-          region  = data.aws_region.current.name
-          subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.application_eks[count.index].node_security_group_id], id : subnet_id } }
-        } : null
-        env = {
-          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
-          ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-      } })
-    }
-  }
+#   cluster_addons = {
+#     coredns = {
+#       before_compute = true
+#       most_recent    = true
+#     }
+#     eks-pod-identity-agent = {
+#       before_compute = true
+#       most_recent    = true
+#     }
+#     kube-proxy = {
+#       before_compute = true
+#       most_recent    = true
+#     }
+#     vpc-cni = {
+#       before_compute = true
+#       most_recent    = true
+#       configuration_values = jsonencode({
+#         eniConfig = var.eks_vpc_cni_custom_networking ? {
+#           create  = true
+#           region  = data.aws_region.current.name
+#           subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.application_eks[count.index].node_security_group_id], id : subnet_id } }
+#         } : null
+#         env = {
+#           AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
+#           ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
+#       } })
+#     }
+#   }
 
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
-  control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
-  cluster_ip_family        = var.cluster_ip_family
+#   vpc_id                   = module.vpc.vpc_id
+#   subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
+#   control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
+#   cluster_ip_family        = var.cluster_ip_family
 
-  # Cluster access entry
-  # To add the current caller identity as an administrator
-  enable_cluster_creator_admin_permissions = true
+#   # Cluster access entry
+#   # To add the current caller identity as an administrator
+#   enable_cluster_creator_admin_permissions = true
 
-  eks_managed_node_groups = {
-    nodegroup = {
-      instance_types = ["m6i.large"]
+#   eks_managed_node_groups = {
+#     nodegroup = {
+#       instance_types = ["m6i.large"]
 
-      min_size     = 3
-      max_size     = 3
-      desired_size = 3
+#       min_size     = 3
+#       max_size     = 3
+#       desired_size = 3
 
-      subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
-    }
-  }
-  access_entries = {
-    # One access entry with a policy associated
-    ssorole = {
-      kubernetes_groups = []
-      principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
+#       subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
+#     }
+#   }
+#   access_entries = {
+#     # One access entry with a policy associated
+#     ssorole = {
+#       kubernetes_groups = []
+#       principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
 
-      policy_associations = {
-        example = {
-          policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
-}
+#       policy_associations = {
+#         example = {
+#           policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+#           access_scope = {
+#             type = "cluster"
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
 
 resource "aws_acm_certificate" "argocd" {
   domain_name       = local.argocd_hostname
@@ -228,7 +197,7 @@ resource "aws_acm_certificate_validation" "argocd" {
 
 module "aws_lb_controller_service_account" {
   depends_on                             = [module.central_eks, module.application_eks]
-  source                                 = "./modules/eksserviceaccount"
+  source                                 = "../modules/eksserviceaccount"
   account_id                             = data.aws_caller_identity.current.account_id
   attach_load_balancer_controller_policy = true
   dynamic_chart_options = [
@@ -242,7 +211,7 @@ module "aws_lb_controller_service_account" {
     }
   ]
   name_prefix          = var.name_prefix
-  oidc_provider_arn    = concat([module.central_eks.oidc_provider_arn], module.application_eks[*].oidc_provider_arn)
+  oidc_provider_arn    = module.central_eks.oidc_provider_arn
   partition            = data.aws_partition.current.partition
   role_name            = "${var.name_prefix}LBControllerRole"
   service_account_name = "aws-load-balancer-controller"
@@ -250,11 +219,11 @@ module "aws_lb_controller_service_account" {
 
 module "external_dns_service_account" {
   depends_on                 = [module.central_eks, module.application_eks]
-  source                     = "./modules/eksserviceaccount"
+  source                     = "../modules/eksserviceaccount"
   account_id                 = data.aws_caller_identity.current.account_id
   attach_external_dns_policy = true
   name_prefix                = var.name_prefix
-  oidc_provider_arn          = concat([module.central_eks.oidc_provider_arn], module.application_eks[*].oidc_provider_arn)
+  oidc_provider_arn          = module.central_eks.oidc_provider_arn
   partition                  = data.aws_partition.current.partition
   role_name                  = "${var.name_prefix}ExternalDNSRole"
   service_account_name       = "external-dns"

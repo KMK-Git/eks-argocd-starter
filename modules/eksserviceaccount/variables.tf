@@ -35,8 +35,8 @@ variable "name_prefix" {
 }
 
 variable "oidc_provider_arn" {
-  description = "ARNs for OIDC provider associated with EKS cluster"
-  type        = list(string)
+  description = "ARN for OIDC provider associated with EKS cluster"
+  type        = string
 }
 
 variable "partition" {
