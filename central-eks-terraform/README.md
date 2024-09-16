@@ -37,6 +37,7 @@
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_route53_zone.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
 | [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
+| [aws_subnets.private_az_specific](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_subnets.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
@@ -46,13 +47,14 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_argocd_domainname"></a> [argocd\_domainname](#input\_argocd\_domainname) | Domain used for ArgoCD | `string` | `"eks.kaustubhk.com"` | no |
 | <a name="input_argocd_hostname_prefix"></a> [argocd\_hostname\_prefix](#input\_argocd\_hostname\_prefix) | Prefix added to domain used for ArgoCD | `string` | `"argocd"` | no |
+| <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | List of availability zones to use | `list(string)` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b",<br>  "us-east-1c"<br>]</pre> | no |
 | <a name="input_central_eks_cluster"></a> [central\_eks\_cluster](#input\_central\_eks\_cluster) | Details of Central EKS cluster | <pre>object({<br>    cluster_name                      = string<br>    cluster_version                   = string<br>    publicly_accessible_cluster       = bool<br>    publicly_accessible_cluster_cidrs = list(string)<br>  })</pre> | <pre>{<br>  "cluster_name": "argocdstartercluster",<br>  "cluster_version": "1.30",<br>  "publicly_accessible_cluster": true,<br>  "publicly_accessible_cluster_cidrs": [<br>    "0.0.0.0/0"<br>  ]<br>}</pre> | no |
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdstarter"` | no |
-| <a name="input_number_availability_zones"></a> [number\_availability\_zones](#input\_number\_availability\_zones) | Number of availability zones to use | `number` | `3` | no |
 | <a name="input_repository_branch"></a> [repository\_branch](#input\_repository\_branch) | Repository branch used as target for ArgoCD Apps | `string` | `"main"` | no |
 | <a name="input_repository_url"></a> [repository\_url](#input\_repository\_url) | Repository url where ArgoCD Apps are stored | `string` | `""` | no |
+| <a name="input_sso_cluster_admin_role_name"></a> [sso\_cluster\_admin\_role\_name](#input\_sso\_cluster\_admin\_role\_name) | Name of AWS IAM Identity Center role added as cluster admin | `string` | `"AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags for all resources | `map(string)` | <pre>{<br>  "Environment": "Sample"<br>}</pre> | no |
 
 ## Outputs

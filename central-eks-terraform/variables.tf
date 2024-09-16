@@ -76,8 +76,7 @@ variable "central_eks_cluster" {
 }
 
 variable "sso_cluster_admin_role_name" {
-  type = string
+  type        = string
   description = "Name of AWS IAM Identity Center role added as cluster admin"
-  default = "AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
+  default     = "AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
 }
-
