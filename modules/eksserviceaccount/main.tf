@@ -17,7 +17,7 @@ module "controller_role" {
 
 resource "helm_release" "serviceaccount" {
   name             = var.service_account_name
-  chart            = "${path.module}/../../../charts/eksserviceaccount"
+  chart            = "${path.module}/../../charts/eksserviceaccount"
   namespace        = var.namespace
   version          = "0.1.0"
   create_namespace = false
