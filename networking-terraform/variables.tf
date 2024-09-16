@@ -1,3 +1,9 @@
+variable "name_prefix" {
+  type        = string
+  description = "Prefix used for resource names"
+  default     = "argocdstarter"
+}
+
 variable "availability_zones" {
   description = "List of availability zones to use"
   type        = list(string)
