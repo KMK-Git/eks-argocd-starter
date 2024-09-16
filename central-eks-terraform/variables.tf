@@ -39,6 +39,11 @@ variable "tags" {
 
 // Networking variables
 
+variable "availability_zones" {
+  description = "List of availability zones to use"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
 
 variable "cluster_ip_family" {
   description = "The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created"
@@ -53,16 +58,6 @@ variable "eks_vpc_cni_custom_networking" {
 }
 
 // Cluster variables
-variable "application_eks_clusters" {
-  type = list(object({
-    cluster_name                      = string
-    cluster_version                   = string
-    publicly_accessible_cluster       = bool
-    publicly_accessible_cluster_cidrs = list(string)
-  }))
-  description = "Details of EKS clusters managed by Central EKS cluster"
-  default     = []
-}
 
 variable "central_eks_cluster" {
   type = object({
@@ -79,3 +74,10 @@ variable "central_eks_cluster" {
     publicly_accessible_cluster_cidrs = ["0.0.0.0/0"]
   }
 }
+
+variable "sso_cluster_admin_role_name" {
+  type = string
+  description = "Name of AWS IAM Identity Center role added as cluster admin"
+  default = "AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
+}
+

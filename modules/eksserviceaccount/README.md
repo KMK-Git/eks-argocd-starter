@@ -34,7 +34,7 @@
 | <a name="input_dynamic_chart_options"></a> [dynamic\_chart\_options](#input\_dynamic\_chart\_options) | List of additional options that need to be passed to service account Helm chart | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | `[]` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | n/a | yes |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace in which service account will be created | `string` | `"kube-system"` | no |
-| <a name="input_oidc_provider_arn"></a> [oidc\_provider\_arn](#input\_oidc\_provider\_arn) | ARNs for OIDC provider associated with EKS cluster | `list(string)` | n/a | yes |
+| <a name="input_oidc_provider_arn"></a> [oidc\_provider\_arn](#input\_oidc\_provider\_arn) | ARN for OIDC provider associated with EKS cluster | `string` | n/a | yes |
 | <a name="input_partition"></a> [partition](#input\_partition) | AWS partition | `string` | n/a | yes |
 | <a name="input_role_name"></a> [role\_name](#input\_role\_name) | Name of IAM role created for service account | `string` | n/a | yes |
 | <a name="input_service_account_name"></a> [service\_account\_name](#input\_service\_account\_name) | Name for service account | `string` | n/a | yes |

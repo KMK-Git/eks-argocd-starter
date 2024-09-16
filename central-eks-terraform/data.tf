@@ -15,4 +15,19 @@ data "aws_subnets" "public" {
     name   = "vpc-id"
     values = [data.aws_vpc.vpc.id]
   }
+  filter {
+    name   = "tag:Name"
+    values = ["${data.aws_vpc.vpc.tags.Name}-public-*"]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["${data.aws_vpc.vpc.tags.Name}-private-*"]
+  }
 }

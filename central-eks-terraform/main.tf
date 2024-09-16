@@ -46,8 +46,8 @@ module "central_eks" {
   }
 
   vpc_id                   = data.aws_vpc.vpc.id
-  subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
-  control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
+  subnet_ids               = slice(data.aws_subnets.private.ids, 0, length(var.availability_zones))
+  control_plane_subnet_ids = slice(data.aws_subnets.public.ids, 0, length(var.availability_zones))
   cluster_ip_family        = var.cluster_ip_family
 
   # Cluster access entry
@@ -62,14 +62,14 @@ module "central_eks" {
       max_size     = 3
       desired_size = 3
 
-      subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
+      subnet_ids = slice(data.aws_subnets.private.ids, length(var.availability_zones) % length(data.aws_subnets.private.ids), length(data.aws_subnets.private.ids))
     }
   }
   access_entries = {
     # One access entry with a policy associated
     ssorole = {
       kubernetes_groups = []
-      principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
+      principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/${var.sso_cluster_admin_role_name}"
 
       policy_associations = {
         example = {
@@ -82,86 +82,6 @@ module "central_eks" {
     }
   }
 }
-
-# module "application_eks" {
-#   count = length(var.application_eks_clusters)
-
-#   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
-
-#   depends_on = [module.vpc, module.fcknat]
-
-#   cluster_name    = var.application_eks_clusters[count.index].cluster_name
-#   cluster_version = var.application_eks_clusters[count.index].cluster_version
-
-#   cluster_endpoint_public_access       = var.application_eks_clusters[count.index].publicly_accessible_cluster
-#   cluster_endpoint_public_access_cidrs = var.application_eks_clusters[count.index].publicly_accessible_cluster ? var.application_eks_clusters[count.index].publicly_accessible_cluster_cidrs : null
-
-#   cluster_addons = {
-#     coredns = {
-#       before_compute = true
-#       most_recent    = true
-#     }
-#     eks-pod-identity-agent = {
-#       before_compute = true
-#       most_recent    = true
-#     }
-#     kube-proxy = {
-#       before_compute = true
-#       most_recent    = true
-#     }
-#     vpc-cni = {
-#       before_compute = true
-#       most_recent    = true
-#       configuration_values = jsonencode({
-#         eniConfig = var.eks_vpc_cni_custom_networking ? {
-#           create  = true
-#           region  = data.aws_region.current.name
-#           subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.application_eks[count.index].node_security_group_id], id : subnet_id } }
-#         } : null
-#         env = {
-#           AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
-#           ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-#       } })
-#     }
-#   }
-
-#   vpc_id                   = module.vpc.vpc_id
-#   subnet_ids               = slice(module.vpc.private_subnets, 0, length(var.availability_zones))
-#   control_plane_subnet_ids = slice(module.vpc.public_subnets, 0, length(var.availability_zones))
-#   cluster_ip_family        = var.cluster_ip_family
-
-#   # Cluster access entry
-#   # To add the current caller identity as an administrator
-#   enable_cluster_creator_admin_permissions = true
-
-#   eks_managed_node_groups = {
-#     nodegroup = {
-#       instance_types = ["m6i.large"]
-
-#       min_size     = 3
-#       max_size     = 3
-#       desired_size = 3
-
-#       subnet_ids = slice(module.vpc.public_subnets, length(var.availability_zones) % length(module.vpc.public_subnets), length(module.vpc.public_subnets))
-#     }
-#   }
-#   access_entries = {
-#     # One access entry with a policy associated
-#     ssorole = {
-#       kubernetes_groups = []
-#       principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
-
-#       policy_associations = {
-#         example = {
-#           policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-#           access_scope = {
-#             type = "cluster"
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
 
 resource "aws_acm_certificate" "argocd" {
   domain_name       = local.argocd_hostname
@@ -196,7 +116,7 @@ resource "aws_acm_certificate_validation" "argocd" {
 }
 
 module "aws_lb_controller_service_account" {
-  depends_on                             = [module.central_eks, module.application_eks]
+  depends_on                             = [module.central_eks]
   source                                 = "../modules/eksserviceaccount"
   account_id                             = data.aws_caller_identity.current.account_id
   attach_load_balancer_controller_policy = true
@@ -218,7 +138,7 @@ module "aws_lb_controller_service_account" {
 }
 
 module "external_dns_service_account" {
-  depends_on                 = [module.central_eks, module.application_eks]
+  depends_on                 = [module.central_eks]
   source                     = "../modules/eksserviceaccount"
   account_id                 = data.aws_caller_identity.current.account_id
   attach_external_dns_policy = true
@@ -277,6 +197,6 @@ resource "helm_release" "argocdingress" {
 
   set {
     name  = "argocdlb.subnetlist"
-    value = join("\\,", slice(module.vpc.public_subnets, 0, length(var.availability_zones)))
+    value = join("\\,", slice(data.aws_subnets.public.ids, 0, length(var.availability_zones)))
   }
 }

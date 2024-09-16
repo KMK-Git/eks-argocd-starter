@@ -18,12 +18,9 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_application_eks"></a> [application\_eks](#module\_application\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ./modules/eksserviceaccount | n/a |
+| <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ../modules/eksserviceaccount | n/a |
 | <a name="module_central_eks"></a> [central\_eks](#module\_central\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ./modules/eksserviceaccount | n/a |
-| <a name="module_fcknat"></a> [fcknat](#module\_fcknat) | git::https://github.com/RaJiska/terraform-aws-fck-nat.git | 9377bf9247c96318b99273eb2978d1afce8cf0eb |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git | e226cc15a7b8f62fd0e108792fea66fa85bcb4b9 |
+| <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ../modules/eksserviceaccount | n/a |
 
 ## Resources
 
@@ -39,27 +36,24 @@
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_route53_zone.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
+| [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
+| [aws_subnets.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
+| [aws_vpc.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_application_eks_clusters"></a> [application\_eks\_clusters](#input\_application\_eks\_clusters) | Details of EKS clusters managed by Central EKS cluster | <pre>list(object({<br>    cluster_name                      = string<br>    cluster_version                   = string<br>    publicly_accessible_cluster       = bool<br>    publicly_accessible_cluster_cidrs = list(string)<br>  }))</pre> | `[]` | no |
 | <a name="input_argocd_domainname"></a> [argocd\_domainname](#input\_argocd\_domainname) | Domain used for ArgoCD | `string` | `"eks.kaustubhk.com"` | no |
 | <a name="input_argocd_hostname_prefix"></a> [argocd\_hostname\_prefix](#input\_argocd\_hostname\_prefix) | Prefix added to domain used for ArgoCD | `string` | `"argocd"` | no |
-| <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | List of availability zones to use | `list(string)` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b"<br>]</pre> | no |
 | <a name="input_central_eks_cluster"></a> [central\_eks\_cluster](#input\_central\_eks\_cluster) | Details of Central EKS cluster | <pre>object({<br>    cluster_name                      = string<br>    cluster_version                   = string<br>    publicly_accessible_cluster       = bool<br>    publicly_accessible_cluster_cidrs = list(string)<br>  })</pre> | <pre>{<br>  "cluster_name": "argocdstartercluster",<br>  "cluster_version": "1.30",<br>  "publicly_accessible_cluster": true,<br>  "publicly_accessible_cluster_cidrs": [<br>    "0.0.0.0/0"<br>  ]<br>}</pre> | no |
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdstarter"` | no |
+| <a name="input_number_availability_zones"></a> [number\_availability\_zones](#input\_number\_availability\_zones) | Number of availability zones to use | `number` | `3` | no |
 | <a name="input_repository_branch"></a> [repository\_branch](#input\_repository\_branch) | Repository branch used as target for ArgoCD Apps | `string` | `"main"` | no |
 | <a name="input_repository_url"></a> [repository\_url](#input\_repository\_url) | Repository url where ArgoCD Apps are stored | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags for all resources | `map(string)` | <pre>{<br>  "Environment": "Sample"<br>}</pre> | no |
-| <a name="input_use_ha_nat"></a> [use\_ha\_nat](#input\_use\_ha\_nat) | Use NAT in HA mode | `bool` | `false` | no |
-| <a name="input_use_managed_nat"></a> [use\_managed\_nat](#input\_use\_managed\_nat) | Use AWS managed NAT. If false, fck-nat is used instead | `bool` | `false` | no |
-| <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | CIDR for VPC | `string` | `"10.0.0.0/16"` | no |
-| <a name="input_vpc_private_cidrs"></a> [vpc\_private\_cidrs](#input\_vpc\_private\_cidrs) | CIDRs for VPC private subnets | `list(string)` | <pre>[<br>  "10.0.0.0/20",<br>  "10.0.16.0/20",<br>  "10.0.32.0/20",<br>  "10.0.48.0/20"<br>]</pre> | no |
-| <a name="input_vpc_public_cidrs"></a> [vpc\_public\_cidrs](#input\_vpc\_public\_cidrs) | CIDRs for VPC public subnets | `list(string)` | <pre>[<br>  "10.0.64.0/20",<br>  "10.0.80.0/20",<br>  "10.0.96.0/20",<br>  "10.0.112.0/20"<br>]</pre> | no |
 
 ## Outputs
 
