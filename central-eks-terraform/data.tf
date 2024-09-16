@@ -10,29 +10,7 @@ data "aws_vpc" "vpc" {
   }
 }
 
-data "aws_subnets" "public" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
-  }
-  filter {
-    name   = "tag:Name"
-    values = ["${data.aws_vpc.vpc.tags.Name}-public-*"]
-  }
-}
-
 data "aws_subnets" "private" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.vpc.id]
-  }
-  filter {
-    name   = "tag:Name"
-    values = ["${data.aws_vpc.vpc.tags.Name}-private-*"]
-  }
-}
-
-data "aws_subnets" "private_az_specific" {
   for_each = toset(var.availability_zones)
   filter {
     name   = "vpc-id"
@@ -41,5 +19,17 @@ data "aws_subnets" "private_az_specific" {
   filter {
     name   = "tag:Name"
     values = ["${data.aws_vpc.vpc.tags.Name}-private-${each.key}"]
+  }
+}
+
+data "aws_subnets" "public" {
+  for_each = toset(var.availability_zones)
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["${data.aws_vpc.vpc.tags.Name}-public-${each.key}"]
   }
 }

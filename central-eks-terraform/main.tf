@@ -36,7 +36,7 @@ module "central_eks" {
         eniConfig = var.eks_vpc_cni_custom_networking ? {
           create  = true
           region  = data.aws_region.current.name
-          subnets = { for az, subnet_id in local.az_subnet_map : az => { securityGroups : [module.central_eks.node_security_group_id], id : subnet_id } }
+          subnets = { for az, subnet_id in local.cni_az_subnet_map : az => { securityGroups : [module.central_eks.node_security_group_id], id : subnet_id } }
         } : null
         env = {
           AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = var.eks_vpc_cni_custom_networking ? "true" : "false"
@@ -46,8 +46,8 @@ module "central_eks" {
   }
 
   vpc_id                   = data.aws_vpc.vpc.id
-  subnet_ids               = slice(data.aws_subnets.private.ids, 0, length(var.availability_zones))
-  control_plane_subnet_ids = slice(data.aws_subnets.public.ids, 0, length(var.availability_zones))
+  subnet_ids               = local.private_subnet_ids
+  control_plane_subnet_ids = local.public_subnet_ids
   cluster_ip_family        = var.cluster_ip_family
 
   # Cluster access entry
@@ -62,7 +62,7 @@ module "central_eks" {
       max_size     = 3
       desired_size = 3
 
-      subnet_ids = slice(data.aws_subnets.private.ids, length(var.availability_zones) % length(data.aws_subnets.private.ids), length(data.aws_subnets.private.ids))
+      subnet_ids = local.private_subnet_ids
     }
   }
   access_entries = {
@@ -197,6 +197,6 @@ resource "helm_release" "argocdingress" {
 
   set {
     name  = "argocdlb.subnetlist"
-    value = join("\\,", slice(data.aws_subnets.public.ids, 0, length(var.availability_zones)))
+    value = join("\\,", local.public_subnet_ids)
   }
 }
