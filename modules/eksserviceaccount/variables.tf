@@ -49,7 +49,7 @@ variable "role_name" {
   type        = string
 }
 
-variable "service_account_name" {
-  description = "Name for service account"
-  type        = string
+variable "service_account_names" {
+  description = "List of names for service account"
+  type        = list(string)
 }

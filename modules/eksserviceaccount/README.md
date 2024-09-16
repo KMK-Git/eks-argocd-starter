@@ -37,7 +37,7 @@
 | <a name="input_oidc_provider_arn"></a> [oidc\_provider\_arn](#input\_oidc\_provider\_arn) | ARN for OIDC provider associated with EKS cluster | `string` | n/a | yes |
 | <a name="input_partition"></a> [partition](#input\_partition) | AWS partition | `string` | n/a | yes |
 | <a name="input_role_name"></a> [role\_name](#input\_role\_name) | Name of IAM role created for service account | `string` | n/a | yes |
-| <a name="input_service_account_name"></a> [service\_account\_name](#input\_service\_account\_name) | Name for service account | `string` | n/a | yes |
+| <a name="input_service_account_names"></a> [service\_account\_names](#input\_service\_account\_names) | List of names for service account | `list(string)` | n/a | yes |
 
 ## Outputs
 

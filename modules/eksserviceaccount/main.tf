@@ -10,13 +10,14 @@ module "controller_role" {
   oidc_providers = {
     main = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["${var.namespace}:${var.service_account_name}"]
+      namespace_service_accounts = [for service_account_name in var.service_account_names : "${var.namespace}:${service_account_name}"]
     }
   }
 }
 
 resource "helm_release" "serviceaccount" {
-  name             = var.service_account_name
+  for_each         = toset(var.service_account_names)
+  name             = each.key
   chart            = "${path.module}/../../charts/eksserviceaccount"
   namespace        = var.namespace
   version          = "0.1.0"
@@ -39,7 +40,7 @@ resource "helm_release" "serviceaccount" {
 
   set {
     name  = "serviceAccount.name"
-    value = var.service_account_name
+    value = each.key
   }
 
   dynamic "set" {
