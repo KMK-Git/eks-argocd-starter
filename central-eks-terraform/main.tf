@@ -81,7 +81,7 @@ module "central_eks" {
     }
   }
   cluster_upgrade_policy = {
-    support_type = var.managed_eks_cluster.cluster_support_type
+    support_type = var.central_eks_cluster.cluster_support_type
   }
 }
 
