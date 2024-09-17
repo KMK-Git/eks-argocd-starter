@@ -21,7 +21,7 @@ resource "helm_release" "serviceaccount" {
   chart            = "${path.module}/../../charts/eksserviceaccount"
   namespace        = var.namespace
   version          = "0.1.0"
-  create_namespace = false
+  create_namespace = true
 
   set {
     name  = "aws.account.id"
