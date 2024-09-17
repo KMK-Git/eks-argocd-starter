@@ -59,6 +59,7 @@ variable "managed_eks_cluster" {
     cluster_version                   = string
     publicly_accessible_cluster       = bool
     publicly_accessible_cluster_cidrs = list(string)
+    cluster_support_type              = string
   })
   description = "Details of Managed EKS cluster"
   default = {
@@ -66,6 +67,7 @@ variable "managed_eks_cluster" {
     cluster_version                   = "1.30"
     publicly_accessible_cluster       = true
     publicly_accessible_cluster_cidrs = ["0.0.0.0/0"]
+    cluster_support_type              = "STANDARD"
   }
 }
 
