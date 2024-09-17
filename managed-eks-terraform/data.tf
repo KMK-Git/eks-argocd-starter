@@ -6,7 +6,7 @@ data "aws_partition" "current" {}
 
 data "aws_vpc" "vpc" {
   tags = {
-    "Name" = "${var.name_prefix}vpc"
+    "Name" = "${var.central_name_prefix}vpc"
   }
 }
 
@@ -35,5 +35,5 @@ data "aws_subnets" "public" {
 }
 
 data "aws_iam_role" "argocd_service_account" {
-  name = var.argocd_service_account_rolename
+  name = "${var.central_name_prefix}ManagementRole"
 }

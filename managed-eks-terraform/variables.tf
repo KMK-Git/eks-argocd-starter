@@ -1,8 +1,8 @@
 // General variables
-variable "argocd_service_account_rolename" {
+variable "central_name_prefix" {
   type        = string
-  description = "Name of IAM role used for ArgoCD"
-  default     = "argocdstarterManagementRole"
+  description = "Prefix used for central cluster resource names"
+  default     = "argocdstarter"
 }
 
 variable "deploy_lb_controller" {
