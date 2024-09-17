@@ -33,3 +33,7 @@ data "aws_subnets" "public" {
     values = ["${data.aws_vpc.vpc.tags.Name}-public-${each.key}"]
   }
 }
+
+data "aws_iam_role" "argocd_service_account" {
+  name = var.argocd_service_account_rolename
+}

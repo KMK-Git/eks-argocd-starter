@@ -66,10 +66,22 @@ module "managed_eks" {
     }
   }
   access_entries = {
-    # One access entry with a policy associated
     ssorole = {
       kubernetes_groups = []
       principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/${var.sso_cluster_admin_role_name}"
+
+      policy_associations = {
+        example = {
+          policy_arn = "arn:${data.aws_partition.current.partition}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+    argocdrole = {
+      kubernetes_groups = []
+      principal_arn     = aws_iam_role.argocd_admin_role.arn
 
       policy_associations = {
         example = {
@@ -92,4 +104,43 @@ module "clusterinfra" {
   deploy_external_dns  = var.deploy_external_dns
   name_prefix          = var.name_prefix
   oidc_provider_arn    = module.managed_eks.oidc_provider_arn
+}
+
+resource "aws_iam_role" "argocd_admin_role" {
+  name = "${var.name_prefix}ArgoCDAdminRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          AWS = data.aws_iam_role.argocd_service_account.arn
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "argocd_admin_assume_role_policy" {
+  name        = "${var.name_prefix}ArgoCDAdminAssumeRole"
+  description = "Allow ArgoCD service account to assume cluster admin role"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "sts:AssumeRole",
+        ]
+        Effect   = "Allow"
+        Resource = aws_iam_role.argocd_admin_role.arn
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = data.aws_iam_role.argocd_service_account.arn
+  policy_arn = aws_iam_policy.argocd_admin_assume_role_policy.arn
 }

@@ -24,7 +24,11 @@
 
 | Name | Type |
 |------|------|
+| [aws_iam_policy.argocd_admin_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.argocd_admin_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.test-attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_role.argocd_service_account](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
@@ -35,10 +39,11 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_argocd_service_account_rolename"></a> [argocd\_service\_account\_rolename](#input\_argocd\_service\_account\_rolename) | Name of IAM role used for ArgoCD | `string` | `"argocdstarterManagementRole"` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | List of availability zones to use | `list(string)` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b",<br>  "us-east-1c"<br>]</pre> | no |
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
-| <a name="input_deploy_external_dns"></a> [deploy\_external\_dns](#input\_deploy\_external\_dns) | True to deploy ExternalDNS controller | `bool` | n/a | yes |
-| <a name="input_deploy_lb_controller"></a> [deploy\_lb\_controller](#input\_deploy\_lb\_controller) | True to deploy Load Balancer controller | `bool` | n/a | yes |
+| <a name="input_deploy_external_dns"></a> [deploy\_external\_dns](#input\_deploy\_external\_dns) | True to deploy ExternalDNS controller | `bool` | `true` | no |
+| <a name="input_deploy_lb_controller"></a> [deploy\_lb\_controller](#input\_deploy\_lb\_controller) | True to deploy Load Balancer controller | `bool` | `true` | no |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_managed_eks_cluster"></a> [managed\_eks\_cluster](#input\_managed\_eks\_cluster) | Details of Managed EKS cluster | <pre>object({<br>    cluster_name                      = string<br>    cluster_version                   = string<br>    publicly_accessible_cluster       = bool<br>    publicly_accessible_cluster_cidrs = list(string)<br>  })</pre> | <pre>{<br>  "cluster_name": "argocdmanagedcluster",<br>  "cluster_version": "1.30",<br>  "publicly_accessible_cluster": true,<br>  "publicly_accessible_cluster_cidrs": [<br>    "0.0.0.0/0"<br>  ]<br>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdmanagedstarter"` | no |

@@ -1,12 +1,20 @@
 // General variables
+variable "argocd_service_account_rolename" {
+  type        = string
+  description = "Name of IAM role used for ArgoCD"
+  default     = "argocdstarterManagementRole"
+}
+
 variable "deploy_lb_controller" {
   type        = bool
   description = "True to deploy Load Balancer controller"
+  default     = true
 }
 
 variable "deploy_external_dns" {
   type        = bool
   description = "True to deploy ExternalDNS controller"
+  default     = true
 }
 
 variable "name_prefix" {

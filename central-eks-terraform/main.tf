@@ -66,7 +66,6 @@ module "central_eks" {
     }
   }
   access_entries = {
-    # One access entry with a policy associated
     ssorole = {
       kubernetes_groups = []
       principal_arn     = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-reserved/sso.amazonaws.com/${var.sso_cluster_admin_role_name}"
