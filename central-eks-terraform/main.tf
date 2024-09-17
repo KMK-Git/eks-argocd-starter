@@ -175,7 +175,7 @@ resource "helm_release" "argocd" {
 resource "helm_release" "argocd_baseapp" {
   depends_on       = [helm_release.argocd]
   name             = "argocdbaseapp"
-  chart            = "${path.module}/../charts/baseapp"
+  chart            = "${path.module}/../charts/argocdbaseapp"
   namespace        = "argocd"
   version          = "0.1.4"
   create_namespace = true

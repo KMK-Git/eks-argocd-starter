@@ -8,7 +8,7 @@ metadata:
 spec:
   project: argocdcluster-app-project
   source:
-    path: "charts/clusterinfra/"
+    path: "charts/argocdclusterinfra/"
     repoURL: {{ $repository_url }}
     targetRevision: {{ $branch }}
   destination:
