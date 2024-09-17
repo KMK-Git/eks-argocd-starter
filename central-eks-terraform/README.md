@@ -19,9 +19,8 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_argocd_service_account"></a> [argocd\_service\_account](#module\_argocd\_service\_account) | ../modules/eksserviceaccount | n/a |
-| <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ../modules/eksserviceaccount | n/a |
 | <a name="module_central_eks"></a> [central\_eks](#module\_central\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ../modules/eksserviceaccount | n/a |
+| <a name="module_clusterinfra"></a> [clusterinfra](#module\_clusterinfra) | ../modules/clusterinfra | n/a |
 
 ## Resources
 

@@ -17,8 +17,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_lb_controller_service_account"></a> [aws\_lb\_controller\_service\_account](#module\_aws\_lb\_controller\_service\_account) | ../modules/eksserviceaccount | n/a |
-| <a name="module_external_dns_service_account"></a> [external\_dns\_service\_account](#module\_external\_dns\_service\_account) | ../modules/eksserviceaccount | n/a |
+| <a name="module_clusterinfra"></a> [clusterinfra](#module\_clusterinfra) | ../modules/clusterinfra | n/a |
 | <a name="module_managed_eks"></a> [managed\_eks](#module\_managed\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
 
 ## Resources
@@ -38,6 +37,8 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | List of availability zones to use | `list(string)` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b",<br>  "us-east-1c"<br>]</pre> | no |
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
+| <a name="input_deploy_external_dns"></a> [deploy\_external\_dns](#input\_deploy\_external\_dns) | True to deploy ExternalDNS controller | `bool` | n/a | yes |
+| <a name="input_deploy_lb_controller"></a> [deploy\_lb\_controller](#input\_deploy\_lb\_controller) | True to deploy Load Balancer controller | `bool` | n/a | yes |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_managed_eks_cluster"></a> [managed\_eks\_cluster](#input\_managed\_eks\_cluster) | Details of Managed EKS cluster | <pre>object({<br>    cluster_name                      = string<br>    cluster_version                   = string<br>    publicly_accessible_cluster       = bool<br>    publicly_accessible_cluster_cidrs = list(string)<br>  })</pre> | <pre>{<br>  "cluster_name": "argocdmanagedcluster",<br>  "cluster_version": "1.30",<br>  "publicly_accessible_cluster": true,<br>  "publicly_accessible_cluster_cidrs": [<br>    "0.0.0.0/0"<br>  ]<br>}</pre> | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdmanagedstarter"` | no |

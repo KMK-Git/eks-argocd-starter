@@ -1,4 +1,14 @@
 // General variables
+variable "deploy_lb_controller" {
+  type        = bool
+  description = "True to deploy Load Balancer controller"
+}
+
+variable "deploy_external_dns" {
+  type        = bool
+  description = "True to deploy ExternalDNS controller"
+}
+
 variable "name_prefix" {
   type        = string
   description = "Prefix used for resource names"

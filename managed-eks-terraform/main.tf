@@ -83,36 +83,13 @@ module "managed_eks" {
   }
 }
 
-module "aws_lb_controller_service_account" {
-  depends_on                             = [module.managed_eks]
-  source                                 = "../modules/eksserviceaccount"
-  account_id                             = data.aws_caller_identity.current.account_id
-  attach_load_balancer_controller_policy = true
-  dynamic_chart_options = [
-    {
-      name  = "serviceAccount.labels.app\\.kubernetes\\.io/component"
-      value = "controller"
-    },
-    {
-      name  = "serviceAccount.labels.app\\.kubernetes\\.io/name"
-      value = "aws-load-balancer-controller"
-    }
-  ]
-  name_prefix           = var.name_prefix
-  oidc_provider_arn     = module.managed_eks.oidc_provider_arn
-  partition             = data.aws_partition.current.partition
-  role_name             = "${var.name_prefix}LBControllerRole"
-  service_account_names = ["aws-load-balancer-controller"]
-}
-
-module "external_dns_service_account" {
-  depends_on                 = [module.managed_eks]
-  source                     = "../modules/eksserviceaccount"
-  account_id                 = data.aws_caller_identity.current.account_id
-  attach_external_dns_policy = true
-  name_prefix                = var.name_prefix
-  oidc_provider_arn          = module.managed_eks.oidc_provider_arn
-  partition                  = data.aws_partition.current.partition
-  role_name                  = "${var.name_prefix}ExternalDNSRole"
-  service_account_names      = ["external-dns"]
+module "clusterinfra" {
+  depends_on           = [module.managed_eks]
+  source               = "../modules/clusterinfra"
+  account_id           = data.aws_caller_identity.current.account_id
+  aws_partition        = data.aws_partition.current.partition
+  deploy_lb_controller = var.deploy_lb_controller
+  deploy_external_dns  = var.deploy_external_dns
+  name_prefix          = var.name_prefix
+  oidc_provider_arn    = module.managed_eks.oidc_provider_arn
 }
