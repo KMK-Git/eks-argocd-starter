@@ -143,7 +143,7 @@ resource "aws_iam_policy" "argocd_admin_assume_role_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "test-attach" {
-  role       = data.aws_iam_role.argocd_service_account.arn
+resource "aws_iam_role_policy_attachment" "argocd_admin_assume_role_policy_attachment" {
+  role       = data.aws_iam_role.argocd_service_account.name
   policy_arn = aws_iam_policy.argocd_admin_assume_role_policy.arn
 }
