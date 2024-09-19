@@ -128,20 +128,20 @@ module "clusterinfra" {
   oidc_provider_arn    = module.central_eks.oidc_provider_arn
 }
 
-module "argocd_service_account" {
-  depends_on            = [module.central_eks]
-  source                = "../modules/eksserviceaccount"
-  account_id            = data.aws_caller_identity.current.account_id
-  name_prefix           = var.name_prefix
-  oidc_provider_arn     = module.central_eks.oidc_provider_arn
-  partition             = data.aws_partition.current.partition
-  role_name             = "${var.name_prefix}ManagementRole"
-  service_account_names = ["argocd-application-controller", "argocd-server"]
-  namespace             = "argocd"
-}
+# module "argocd_service_account" {
+#   depends_on            = [module.central_eks]
+#   source                = "../modules/eksserviceaccount"
+#   account_id            = data.aws_caller_identity.current.account_id
+#   name_prefix           = var.name_prefix
+#   oidc_provider_arn     = module.central_eks.oidc_provider_arn
+#   partition             = data.aws_partition.current.partition
+#   role_name             = "${var.name_prefix}ManagementRole"
+#   service_account_names = ["argocd-application-controller", "argocd-server"]
+#   namespace             = "argocd"
+# }
 
 resource "helm_release" "argocd" {
-  depends_on       = [module.central_eks, module.argocd_service_account]
+  depends_on       = [module.central_eks]
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
