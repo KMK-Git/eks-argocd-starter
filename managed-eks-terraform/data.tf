@@ -41,3 +41,7 @@ data "aws_iam_role" "argocd_service_account" {
 data "aws_eks_cluster" "argocd" {
   name = var.central_cluster_name
 }
+
+data "aws_security_group" "central_cluster_node" {
+  name = "${var.central_cluster_name}-node"
+}
