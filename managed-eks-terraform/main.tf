@@ -98,7 +98,7 @@ module "managed_eks" {
   }
   # Allow central cluster to access api endpoint
   cluster_security_group_additional_rules = {
-    for index, security_group_id in data.aws_eks_cluster.argocd.vpc_config.security_groupids :
+    for index, security_group_id in data.aws_eks_cluster.argocd.vpc_config[0].security_group_ids :
     "central_cluster_to_managed_cluster${index}" => {
       description              = "cluster api access"
       protocol                 = "tcp"
