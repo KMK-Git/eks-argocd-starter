@@ -1,0 +1,15 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Details of EKS cluster to be added
+cluster:
+  # -- Name for cluster
+  name: ""
+  # -- Role ARN for cluster
+  role_arn: ""
+  # -- IAM Role ARN which has permissions to manage cluster
+  ca_data: ""
+  # -- ARN for cluster
+  arn: ""
+  # -- Endpoint for cluster
+  endpoint: ""

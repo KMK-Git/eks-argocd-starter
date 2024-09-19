@@ -147,3 +147,33 @@ resource "aws_iam_role_policy_attachment" "argocd_admin_assume_role_policy_attac
   role       = data.aws_iam_role.argocd_service_account.name
   policy_arn = aws_iam_policy.argocd_admin_assume_role_policy.arn
 }
+
+resource "helm_release" "argocdmanagedcluster" {
+  provider         = helm.argocdcluster
+  depends_on       = [module.central_eks, aws_iam_role_policy_attachment.argocd_admin_assume_role_policy_attachment]
+  name             = "argocdmanagedcluster"
+  chart            = "${path.module}/../charts/argocdmanagedcluster"
+  namespace        = "argocd"
+  version          = "0.1.0"
+  create_namespace = true
+  set {
+    name  = "cluster.name"
+    value = module.managed_eks.cluster_name
+  }
+  set {
+    name  = "cluster.role_arn"
+    value = aws_iam_role.argocd_admin_role.arn
+  }
+  set {
+    name  = "cluster.ca_data"
+    value = module.managed_eks.cluster_certificate_authority_data
+  }
+  set {
+    name  = "cluster.arn"
+    value = module.managed_eks.cluster_arn
+  }
+  set {
+    name  = "cluster.endpoint"
+    value = module.managed_eks.cluster_endpoint
+  }
+}
