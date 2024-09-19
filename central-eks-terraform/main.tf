@@ -140,6 +140,21 @@ module "clusterinfra" {
 #   namespace             = "argocd"
 # }
 
+module "controller_role" {
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
+
+  role_name = "${var.name_prefix}ManagementRole"
+
+  policy_name_prefix = var.name_prefix
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.central_eks.oidc_provider_arn
+      namespace_service_accounts = ["argocd:argocd-application-controller", "argocd:argocd-server"]
+    }
+  }
+}
+
 resource "helm_release" "argocd" {
   depends_on       = [module.central_eks]
   name             = "argocd"
@@ -149,6 +164,14 @@ resource "helm_release" "argocd" {
   version          = "7.4.5"
   create_namespace = true
   values           = [file("${path.module}/helmvalues/argocd.yaml")]
+  set {
+    name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.controller_role.iam_role_arn
+  }
+  set {
+    name  = "server.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.controller_role.iam_role_arn
+  }
 }
 
 resource "helm_release" "argocd_baseapp" {
