@@ -96,6 +96,18 @@ module "managed_eks" {
   cluster_upgrade_policy = {
     support_type = var.managed_eks_cluster.cluster_support_type
   }
+  # Allow central cluster to access api endpoint
+  cluster_security_group_additional_rules = {
+    for index, security_group_id in data.aws_eks_cluster.argocd.vpc_config.security_groupids :
+    "central_cluster_to_managed_cluster${index}" => {
+      description              = "cluster api access"
+      protocol                 = "tcp"
+      from_port                = 443
+      to_port                  = 443
+      type                     = "ingress"
+      source_security_group_id = security_group_id
+    }
+  }
 }
 
 module "clusterinfra" {
