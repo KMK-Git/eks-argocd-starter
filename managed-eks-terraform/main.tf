@@ -151,7 +151,7 @@ resource "aws_iam_role_policy_attachment" "argocd_admin_assume_role_policy_attac
 resource "helm_release" "argocdmanagedcluster" {
   provider         = helm.argocdcluster
   depends_on       = [module.managed_eks, aws_iam_role_policy_attachment.argocd_admin_assume_role_policy_attachment]
-  name             = "argocdmanagedcluster"
+  name             = module.managed_eks.cluster_name
   chart            = "${path.module}/../charts/argocdmanagedcluster"
   namespace        = "argocd"
   version          = "0.1.0"
