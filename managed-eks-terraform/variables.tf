@@ -1,4 +1,11 @@
 // General variables
+variable "central_cluster_name" {
+  type        = string
+  description = "Name used for central cluster"
+  default     = "argocdstartercluster"
+}
+
+
 variable "central_name_prefix" {
   type        = string
   description = "Prefix used for central cluster resource names"

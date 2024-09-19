@@ -37,3 +37,7 @@ data "aws_subnets" "public" {
 data "aws_iam_role" "argocd_service_account" {
   name = "${var.central_name_prefix}ManagementRole"
 }
+
+data "aws_eks_cluster" "argocd" {
+  name = var.central_cluster_name
+}
