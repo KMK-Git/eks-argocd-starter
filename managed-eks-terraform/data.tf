@@ -43,5 +43,7 @@ data "aws_eks_cluster" "argocd" {
 }
 
 data "aws_security_group" "central_cluster_node" {
-  name = "${var.central_cluster_name}-node"
+  tags = {
+    Name = "${var.central_cluster_name}-node"
+  }
 }
