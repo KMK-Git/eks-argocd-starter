@@ -18,9 +18,9 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_argocd_service_account"></a> [argocd\_service\_account](#module\_argocd\_service\_account) | ../modules/eksserviceaccount | n/a |
 | <a name="module_central_eks"></a> [central\_eks](#module\_central\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
 | <a name="module_clusterinfra"></a> [clusterinfra](#module\_clusterinfra) | ../modules/clusterinfra | n/a |
+| <a name="module_controller_role"></a> [controller\_role](#module\_controller\_role) | git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks | 89fe17a6549728f1dc7e7a8f7b707486dfb45d89 |
 
 ## Resources
 
