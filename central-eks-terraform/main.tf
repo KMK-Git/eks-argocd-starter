@@ -139,16 +139,17 @@ module "eks_blueprints_addons" {
   argocd = {
     chart_version = "7.4.5"
     values        = [file("${path.module}/helmvalues/argocd.yaml")]
-    set = [
-      {
-        name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-        value = module.controller_role.iam_role_arn
-      },
-      {
-        name  = "server.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-        value = module.controller_role.iam_role_arn
-      }
-    ]
+    set = "test"
+    # set = [
+    #   {
+    #     name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    #     value = module.controller_role.iam_role_arn
+    #   },
+    #   {
+    #     name  = "server.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    #     value = module.controller_role.iam_role_arn
+    #   }
+    # ]
   }
 }
 
