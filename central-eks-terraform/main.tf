@@ -9,8 +9,7 @@ module "central_eks" {
 
   cluster_addons = {
     coredns = {
-      before_compute = true
-      most_recent    = true
+      most_recent = true
     }
     eks-pod-identity-agent = {
       before_compute = true
@@ -124,7 +123,8 @@ module "controller_role" {
 }
 
 module "eks_blueprints_addons" {
-  source = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
+  depends_on = [module.central_eks]
+  source     = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
 
   cluster_name      = module.central_eks.cluster_name
   cluster_endpoint  = module.central_eks.cluster_endpoint
