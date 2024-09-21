@@ -171,7 +171,7 @@ module "eks_blueprints_addons" {
 # }
 
 resource "helm_release" "argocdingress" {
-  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.eks_blueprints_addons]
+  depends_on = [aws_acm_certificate_validation.argocd, module.eks_blueprints_addons]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
