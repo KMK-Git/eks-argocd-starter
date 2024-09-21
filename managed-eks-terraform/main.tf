@@ -1,12 +1,3 @@
-/*
-References:
-https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/karpenter-mng/
-https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/karpenter/main.tf
-*/
-
-
-
-
 module "managed_eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
@@ -18,8 +9,7 @@ module "managed_eks" {
 
   cluster_addons = {
     coredns = {
-      before_compute = true
-      most_recent    = true
+      most_recent = true
     }
     eks-pod-identity-agent = {
       before_compute = true
@@ -109,15 +99,25 @@ module "managed_eks" {
   }
 }
 
-module "clusterinfra" {
-  depends_on           = [module.managed_eks]
-  source               = "../modules/clusterinfra"
-  account_id           = data.aws_caller_identity.current.account_id
-  aws_partition        = data.aws_partition.current.partition
-  deploy_lb_controller = var.deploy_lb_controller
-  deploy_external_dns  = var.deploy_external_dns
-  name_prefix          = var.name_prefix
-  oidc_provider_arn    = module.managed_eks.oidc_provider_arn
+data "aws_route53_zone" "route53_zones" {
+  for_each     = toset(var.route53_zone_names)
+  name         = each.value
+  private_zone = false
+}
+
+module "eks_blueprints_addons" {
+  depends_on = [module.managed_eks]
+  source     = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
+
+  cluster_name      = module.managed_eks.cluster_name
+  cluster_endpoint  = module.managed_eks.cluster_endpoint
+  cluster_version   = module.managed_eks.cluster_version
+  oidc_provider_arn = module.managed_eks.oidc_provider_arn
+
+  enable_aws_load_balancer_controller = var.enable_aws_load_balancer_controller
+  enable_metrics_server               = var.enable_metrics_server
+  enable_external_dns                 = var.enable_external_dns
+  external_dns_route53_zone_arns      = var.enable_external_dns ? data.aws_route53_zone.route53_zones[*].arn : []
 }
 
 resource "aws_iam_role" "argocd_admin_role" {
