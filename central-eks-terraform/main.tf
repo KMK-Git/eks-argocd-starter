@@ -1,12 +1,3 @@
-/*
-References:
-https://aws-ia.github.io/terraform-aws-eks-blueprints/patterns/karpenter-mng/
-https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/karpenter/main.tf
-*/
-
-
-
-
 module "central_eks" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435"
 
@@ -117,43 +108,6 @@ resource "aws_acm_certificate_validation" "argocd" {
   validation_record_fqdns = [for record in aws_route53_record.argocd : record.fqdn]
 }
 
-# module "clusterinfra" {
-#   depends_on           = [module.central_eks]
-#   source               = "../modules/clusterinfra"
-#   account_id           = data.aws_caller_identity.current.account_id
-#   aws_partition        = data.aws_partition.current.partition
-#   deploy_lb_controller = true
-#   deploy_external_dns  = true
-#   name_prefix          = var.name_prefix
-#   oidc_provider_arn    = module.central_eks.oidc_provider_arn
-# }
-
-module "eks_blueprints_addons" {
-  source = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
-
-  cluster_name      = module.central_eks.cluster_name
-  cluster_endpoint  = module.central_eks.cluster_endpoint
-  cluster_version   = module.central_eks.cluster_version
-  oidc_provider_arn = module.central_eks.oidc_provider_arn
-
-  enable_aws_load_balancer_controller   = true
-  enable_metrics_server                 = true
-  enable_external_dns                   = true
-  cert_manager_route53_hosted_zone_arns = [data.aws_route53_zone.argocd.arn]
-}
-
-# module "argocd_service_account" {
-#   depends_on            = [module.central_eks]
-#   source                = "../modules/eksserviceaccount"
-#   account_id            = data.aws_caller_identity.current.account_id
-#   name_prefix           = var.name_prefix
-#   oidc_provider_arn     = module.central_eks.oidc_provider_arn
-#   partition             = data.aws_partition.current.partition
-#   role_name             = "${var.name_prefix}ManagementRole"
-#   service_account_names = ["argocd-application-controller", "argocd-server"]
-#   namespace             = "argocd"
-# }
-
 module "controller_role" {
   source = "git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks?ref=89fe17a6549728f1dc7e7a8f7b707486dfb45d89"
 
@@ -169,42 +123,52 @@ module "controller_role" {
   }
 }
 
-resource "helm_release" "argocd" {
-  depends_on       = [module.central_eks]
-  name             = "argocd"
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
-  namespace        = "argocd"
-  version          = "7.4.5"
-  create_namespace = true
-  values           = [file("${path.module}/helmvalues/argocd.yaml")]
-  set {
-    name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.controller_role.iam_role_arn
-  }
-  set {
-    name  = "server.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.controller_role.iam_role_arn
+module "eks_blueprints_addons" {
+  source = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
+
+  cluster_name      = module.central_eks.cluster_name
+  cluster_endpoint  = module.central_eks.cluster_endpoint
+  cluster_version   = module.central_eks.cluster_version
+  oidc_provider_arn = module.central_eks.oidc_provider_arn
+
+  enable_argocd                       = true
+  enable_aws_load_balancer_controller = true
+  enable_metrics_server               = true
+  enable_external_dns                 = true
+  external_dns_route53_zone_arns      = [data.aws_route53_zone.argocd.arn]
+  argocd = {
+    chart_version = "7.4.5"
+    values        = [file("${path.module}/helmvalues/argocd.yaml")]
+    set = [
+      {
+        name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+        value = module.controller_role.iam_role_arn
+      },
+      {
+        name  = "server.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+        value = module.controller_role.iam_role_arn
+      }
+    ]
   }
 }
 
-resource "helm_release" "argocd_baseapp" {
-  depends_on       = [helm_release.argocd]
-  name             = "argocdbaseapp"
-  chart            = "${path.module}/../charts/argocdbaseapp"
-  namespace        = "argocd"
-  version          = "0.1.4"
-  create_namespace = true
-  set {
-    name  = "repository.url"
-    value = var.repository_url
-  }
+# resource "helm_release" "argocd_baseapp" {
+#   depends_on       = [helm_release.argocd]
+#   name             = "argocdbaseapp"
+#   chart            = "${path.module}/../charts/argocdbaseapp"
+#   namespace        = "argocd"
+#   version          = "0.1.4"
+#   create_namespace = true
+#   set {
+#     name  = "repository.url"
+#     value = var.repository_url
+#   }
 
-  set {
-    name  = "repository.branch"
-    value = var.repository_branch
-  }
-}
+#   set {
+#     name  = "repository.branch"
+#     value = var.repository_branch
+#   }
+# }
 
 resource "helm_release" "argocdingress" {
   depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.eks_blueprints_addons]
