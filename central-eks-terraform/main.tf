@@ -117,15 +117,29 @@ resource "aws_acm_certificate_validation" "argocd" {
   validation_record_fqdns = [for record in aws_route53_record.argocd : record.fqdn]
 }
 
-module "clusterinfra" {
-  depends_on           = [module.central_eks]
-  source               = "../modules/clusterinfra"
-  account_id           = data.aws_caller_identity.current.account_id
-  aws_partition        = data.aws_partition.current.partition
-  deploy_lb_controller = true
-  deploy_external_dns  = true
-  name_prefix          = var.name_prefix
-  oidc_provider_arn    = module.central_eks.oidc_provider_arn
+# module "clusterinfra" {
+#   depends_on           = [module.central_eks]
+#   source               = "../modules/clusterinfra"
+#   account_id           = data.aws_caller_identity.current.account_id
+#   aws_partition        = data.aws_partition.current.partition
+#   deploy_lb_controller = true
+#   deploy_external_dns  = true
+#   name_prefix          = var.name_prefix
+#   oidc_provider_arn    = module.central_eks.oidc_provider_arn
+# }
+
+module "eks_blueprints_addons" {
+  source = "git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git?ref=a9963f4a0e168f73adb033be594ac35868696a91"
+
+  cluster_name      = module.central_eks.cluster_name
+  cluster_endpoint  = module.central_eks.cluster_endpoint
+  cluster_version   = module.central_eks.cluster_version
+  oidc_provider_arn = module.central_eks.oidc_provider_arn
+
+  enable_aws_load_balancer_controller   = true
+  enable_metrics_server                 = true
+  enable_external_dns                   = true
+  cert_manager_route53_hosted_zone_arns = [data.aws_route53_zone.argocd.arn]
 }
 
 # module "argocd_service_account" {
@@ -193,7 +207,7 @@ resource "helm_release" "argocd_baseapp" {
 }
 
 resource "helm_release" "argocdingress" {
-  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.clusterinfra]
+  depends_on = [helm_release.argocd, aws_acm_certificate_validation.argocd, module.eks_blueprints_addons]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
