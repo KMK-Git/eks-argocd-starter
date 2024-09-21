@@ -78,6 +78,9 @@ module "central_eks" {
 resource "aws_acm_certificate" "argocd" {
   domain_name       = local.argocd_hostname
   validation_method = "DNS"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 data "aws_route53_zone" "argocd" {
