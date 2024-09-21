@@ -161,8 +161,8 @@ resource "helm_release" "argocdingress" {
   depends_on = [aws_acm_certificate_validation.argocd, time_sleep.wait_lb_controller_deployment]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
-  namespace  = "kube-system"
-  version    = "0.9.0"
+  namespace  = "argocd"
+  version    = "0.10.0"
 
   set {
     name  = "argocdlb.hostname"
