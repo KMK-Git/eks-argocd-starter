@@ -152,26 +152,13 @@ module "eks_blueprints_addons" {
   }
 }
 
-# resource "helm_release" "argocd_baseapp" {
-#   depends_on       = [helm_release.argocd]
-#   name             = "argocdbaseapp"
-#   chart            = "${path.module}/../charts/argocdbaseapp"
-#   namespace        = "argocd"
-#   version          = "0.1.4"
-#   create_namespace = true
-#   set {
-#     name  = "repository.url"
-#     value = var.repository_url
-#   }
-
-#   set {
-#     name  = "repository.branch"
-#     value = var.repository_branch
-#   }
-# }
+resource "time_sleep" "wait_lb_controller_deployment" {
+  depends_on      = [module.eks_blueprints_addons]
+  create_duration = "60s"
+}
 
 resource "helm_release" "argocdingress" {
-  depends_on = [aws_acm_certificate_validation.argocd, module.eks_blueprints_addons]
+  depends_on = [aws_acm_certificate_validation.argocd, time_sleep.wait_lb_controller_deployment]
   name       = "argocdingress"
   chart      = "${path.module}/../charts/argocdingress"
   namespace  = "kube-system"
