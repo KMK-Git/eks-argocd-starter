@@ -31,8 +31,6 @@
 | [aws_acm_certificate.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate) | resource |
 | [aws_acm_certificate_validation.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_route53_record.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
-| [helm_release.argocd](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [helm_release.argocd_baseapp](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.argocdingress](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
@@ -53,8 +51,6 @@
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdstarter"` | no |
-| <a name="input_repository_branch"></a> [repository\_branch](#input\_repository\_branch) | Repository branch used as target for ArgoCD Apps | `string` | `"main"` | no |
-| <a name="input_repository_url"></a> [repository\_url](#input\_repository\_url) | Repository url where ArgoCD Apps are stored | `string` | `""` | no |
 | <a name="input_sso_cluster_admin_role_name"></a> [sso\_cluster\_admin\_role\_name](#input\_sso\_cluster\_admin\_role\_name) | Name of AWS IAM Identity Center role added as cluster admin | `string` | `"AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags for all resources | `map(string)` | <pre>{<br>  "Environment": "Sample"<br>}</pre> | no |
 
