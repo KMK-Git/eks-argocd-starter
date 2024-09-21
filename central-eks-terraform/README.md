@@ -6,6 +6,8 @@
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.8.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | ~> 0.12.0 |
 
 ## Providers
 
@@ -13,14 +15,15 @@
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.64.0 |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | 2.15.0 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.12.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_central_eks"></a> [central\_eks](#module\_central\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_clusterinfra"></a> [clusterinfra](#module\_clusterinfra) | ../modules/clusterinfra | n/a |
 | <a name="module_controller_role"></a> [controller\_role](#module\_controller\_role) | git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks | 89fe17a6549728f1dc7e7a8f7b707486dfb45d89 |
+| <a name="module_eks_blueprints_addons"></a> [eks\_blueprints\_addons](#module\_eks\_blueprints\_addons) | git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git | a9963f4a0e168f73adb033be594ac35868696a91 |
 
 ## Resources
 
@@ -29,9 +32,8 @@
 | [aws_acm_certificate.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate) | resource |
 | [aws_acm_certificate_validation.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_route53_record.argocd](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
-| [helm_release.argocd](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [helm_release.argocd_baseapp](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.argocdingress](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [time_sleep.wait_lb_controller_deployment](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
@@ -51,8 +53,6 @@
 | <a name="input_cluster_ip_family"></a> [cluster\_ip\_family](#input\_cluster\_ip\_family) | The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`. You can only specify an IP family when you create a cluster, changing this value will force a new cluster to be created | `string` | `"ipv4"` | no |
 | <a name="input_eks_vpc_cni_custom_networking"></a> [eks\_vpc\_cni\_custom\_networking](#input\_eks\_vpc\_cni\_custom\_networking) | Use custom networking configuration for AWS VPC CNI | `bool` | `true` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix used for resource names | `string` | `"argocdstarter"` | no |
-| <a name="input_repository_branch"></a> [repository\_branch](#input\_repository\_branch) | Repository branch used as target for ArgoCD Apps | `string` | `"main"` | no |
-| <a name="input_repository_url"></a> [repository\_url](#input\_repository\_url) | Repository url where ArgoCD Apps are stored | `string` | `""` | no |
 | <a name="input_sso_cluster_admin_role_name"></a> [sso\_cluster\_admin\_role\_name](#input\_sso\_cluster\_admin\_role\_name) | Name of AWS IAM Identity Center role added as cluster admin | `string` | `"AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Default tags for all resources | `map(string)` | <pre>{<br>  "Environment": "Sample"<br>}</pre> | no |
 

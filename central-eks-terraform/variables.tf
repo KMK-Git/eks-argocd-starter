@@ -17,17 +17,17 @@ variable "name_prefix" {
   default     = "argocdstarter"
 }
 
-variable "repository_branch" {
-  type        = string
-  description = "Repository branch used as target for ArgoCD Apps"
-  default     = "main"
-}
+# variable "repository_branch" {
+#   type        = string
+#   description = "Repository branch used as target for ArgoCD Apps"
+#   default     = "main"
+# }
 
-variable "repository_url" {
-  type        = string
-  description = "Repository url where ArgoCD Apps are stored"
-  default     = ""
-}
+# variable "repository_url" {
+#   type        = string
+#   description = "Repository url where ArgoCD Apps are stored"
+#   default     = ""
+# }
 
 variable "tags" {
   type        = map(string)

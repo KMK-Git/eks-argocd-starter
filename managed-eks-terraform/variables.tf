@@ -12,15 +12,21 @@ variable "central_name_prefix" {
   default     = "argocdstarter"
 }
 
-variable "deploy_lb_controller" {
+variable "enable_aws_load_balancer_controller" {
+  description = "Enable AWS Load Balancer Controller add-on"
   type        = bool
-  description = "True to deploy Load Balancer controller"
-  default     = true
+  default     = false
 }
 
-variable "deploy_external_dns" {
+variable "enable_external_dns" {
+  description = "Enable external-dns operator add-on"
   type        = bool
-  description = "True to deploy ExternalDNS controller"
+  default     = false
+}
+
+variable "enable_metrics_server" {
+  description = "Enable metrics server add-on"
+  type        = bool
   default     = true
 }
 
@@ -28,6 +34,12 @@ variable "name_prefix" {
   type        = string
   description = "Prefix used for resource names"
   default     = "argocdmanagedstarter"
+}
+
+variable "route53_zone_names" {
+  type        = list(string)
+  description = "List of names of route 53 zones which are managed by ExternalDNS, if enabled"
+  default     = []
 }
 
 variable "tags" {
