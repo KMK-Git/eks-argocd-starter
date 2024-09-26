@@ -13,8 +13,8 @@ module "vpc" {
   enable_dns_hostnames = true
 
   enable_nat_gateway     = var.use_managed_nat
-  single_nat_gateway     = var.use_managed_nat ? null : !var.use_ha_nat
-  one_nat_gateway_per_az = var.use_managed_nat ? null : true
+  single_nat_gateway     = var.use_managed_nat ? !var.use_ha_nat : null
+  one_nat_gateway_per_az = var.use_managed_nat ? var.use_ha_nat : null
 }
 
 module "fcknat" {
