@@ -21,8 +21,8 @@
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_argocd_pod_identity"></a> [argocd\_pod\_identity](#module\_argocd\_pod\_identity) | git::https://github.com/terraform-aws-modules/terraform-aws-eks-pod-identity | f39ff40fd4f45d61dda0b1a26cb82e1a005e2417 |
 | <a name="module_central_eks"></a> [central\_eks](#module\_central\_eks) | git::https://github.com/terraform-aws-modules/terraform-aws-eks.git | c60b70fbc80606eb4ed8cf47063ac6ed0d8dd435 |
-| <a name="module_controller_role"></a> [controller\_role](#module\_controller\_role) | git::https://github.com/terraform-aws-modules/terraform-aws-iam.git//modules/iam-role-for-service-accounts-eks | 89fe17a6549728f1dc7e7a8f7b707486dfb45d89 |
 | <a name="module_eks_blueprints_addons"></a> [eks\_blueprints\_addons](#module\_eks\_blueprints\_addons) | git::https://github.com/aws-ia/terraform-aws-eks-blueprints-addons.git | a9963f4a0e168f73adb033be594ac35868696a91 |
 
 ## Resources
