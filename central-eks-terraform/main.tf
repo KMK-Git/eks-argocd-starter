@@ -114,7 +114,8 @@ module "argocd_pod_identity" {
   depends_on = [module.central_eks]
   source     = "git::https://github.com/terraform-aws-modules/terraform-aws-eks-pod-identity?ref=f39ff40fd4f45d61dda0b1a26cb82e1a005e2417"
 
-  name = "${var.name_prefix}ManagementRole"
+  name            = "${var.name_prefix}ManagementRole"
+  use_name_prefix = false
 
   trust_policy_conditions = [
     {
