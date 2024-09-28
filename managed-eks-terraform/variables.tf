@@ -95,3 +95,29 @@ variable "sso_cluster_admin_role_name" {
   description = "Name of AWS IAM Identity Center role added as cluster admin"
   default     = "AWSReservedSSO_AWSAdministratorAccess_1bbf9fcc3b81288e"
 }
+
+// ArgoCD project variables
+
+variable "create_baseapp" {
+  type        = bool
+  description = "Set to true to create an ArgoCD app. This should be used as a base app in an app of apps pattern"
+  default     = false
+}
+
+variable "app_repository_url" {
+  type        = string
+  description = "URL for app repository"
+  default     = ""
+}
+
+variable "app_repository_branch" {
+  type        = string
+  description = "Branch for app repository"
+  default     = ""
+}
+
+variable "app_repository_path" {
+  type        = string
+  description = "Path for app repository"
+  default     = ""
+}

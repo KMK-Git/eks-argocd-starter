@@ -191,3 +191,33 @@ resource "helm_release" "argocdmanagedcluster" {
     value = module.managed_eks.cluster_endpoint
   }
 }
+
+resource "helm_release" "argocdbaseapp" {
+  count            = var.create_baseapp ? 1 : 0
+  provider         = helm.argocdcluster
+  depends_on       = [helm_release.argocd]
+  name             = "${module.managed_eks.cluster_name}app"
+  chart            = "${path.module}/../charts/argocdbaseapp"
+  namespace        = "argocd"
+  version          = "0.0.1"
+  create_namespace = true
+  set {
+    name  = "repository.url"
+    value = var.app_repository_url
+  }
+
+  set {
+    name  = "repository.branch"
+    value = var.app_repository_branch
+  }
+
+  set {
+    name  = "repository.branch"
+    value = var.app_repository_path
+  }
+
+  set {
+    name  = "destination.url"
+    value = module.managed_eks.cluster_endpoint
+  }
+}

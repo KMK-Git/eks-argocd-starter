@@ -1,0 +1,29 @@
+{{- $repository_path := .Values.repository.path | required ".Values.repository.path is required." -}}
+{{- $repository_url := .Values.repository.url | required ".Values.repository.url is required." -}}
+{{- $branch := .Values.repository.branch | required ".Values.repository.branch is required." -}}
+{{- $destination_url := .Values.destination.url | required ".Values.destination.url is required." -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocdclusterapps
+  namespace: argocd
+spec:
+  project: base-app-project
+  source:
+    path: {{ $repository_path }}
+    repoURL: {{ $repository_url }}
+    targetRevision: {{ $branch }}
+    helm:
+      parameters:
+      - name: "repository.url"
+        value: {{ $repository_url }}
+      - name: "repository.branch"
+        value: {{ $branch }}
+  destination:
+    server: {{ $destination_url }}
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      allowEmpty: true
+      selfHeal: true

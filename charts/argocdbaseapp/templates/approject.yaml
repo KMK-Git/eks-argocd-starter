@@ -1,0 +1,18 @@
+{{- $repository_url := .Values.repository.url | required ".Values.repository.url is required." -}}
+{{- $destination_url := .Values.destination.url | required ".Values.destination.url is required." -}}
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: base-app-project
+  namespace: argocd
+  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Project for base and other applications
+  # Allow manifests to deploy from the following Git repo
+  sourceRepos:
+  - {{ $repository_url }}
+  destinations:
+  - namespace: '*'
+    server: {{ $destination_url }}
