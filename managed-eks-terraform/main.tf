@@ -212,7 +212,7 @@ resource "helm_release" "argocdbaseapp" {
   }
 
   set {
-    name  = "repository.branch"
+    name  = "repository.path"
     value = var.app_repository_path
   }
 
