@@ -127,7 +127,10 @@ resource "aws_iam_role" "argocd_admin_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
+        Action = [
+          "sts:AssumeRole",
+          "sts:TagSession"
+        ]
         Effect = "Allow"
         Principal = {
           AWS = data.aws_iam_role.argocd_service_account.arn
