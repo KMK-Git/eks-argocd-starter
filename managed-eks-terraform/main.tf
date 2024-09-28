@@ -195,7 +195,7 @@ resource "helm_release" "argocdmanagedcluster" {
 resource "helm_release" "argocdbaseapp" {
   count            = var.create_baseapp ? 1 : 0
   provider         = helm.argocdcluster
-  depends_on       = [helm_release.argocd]
+  depends_on       = [helm_release.argocdmanagedcluster]
   name             = "${module.managed_eks.cluster_name}app"
   chart            = "${path.module}/../charts/argocdbaseapp"
   namespace        = "argocd"
