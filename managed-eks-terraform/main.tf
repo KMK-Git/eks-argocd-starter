@@ -53,6 +53,12 @@ module "managed_eks" {
       desired_size = 3
 
       subnet_ids = local.private_subnet_ids
+
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = 1
+      }
     }
   }
   access_entries = {
