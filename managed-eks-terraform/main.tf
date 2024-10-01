@@ -57,7 +57,7 @@ module "managed_eks" {
       metadata_options = {
         http_endpoint               = "enabled"
         http_tokens                 = "required"
-        http_put_response_hop_limit = 1
+        http_put_response_hop_limit = var.restrict_instance_metadata ? 1 : 2
       }
     }
   }

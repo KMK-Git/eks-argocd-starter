@@ -77,6 +77,12 @@ variable "central_eks_cluster" {
   }
 }
 
+variable "restrict_instance_metadata" {
+  type        = bool
+  description = "Restrict pods from accesssing node instance metadata endpoint"
+  default     = true
+}
+
 variable "sso_cluster_admin_role_name" {
   type        = string
   description = "Name of AWS IAM Identity Center role added as cluster admin"
