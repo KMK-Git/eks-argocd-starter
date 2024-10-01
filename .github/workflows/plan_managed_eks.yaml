@@ -7,6 +7,10 @@ on:
         type: string
         description: Prefix used for resource names
         default: argocdmanagedstarter
+      restrict_instance_metadata:
+        type: boolean
+        description: Restrict pods from accesssing node instance metadata endpoint
+        default: true
       create_baseapp:
         type: boolean
         description: Set to true to create an ArgoCD app. This should be used as a base app in an app of apps pattern
@@ -63,6 +67,6 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -var 'name_prefix=${{ github.event.inputs.name_prefix }}' -var 'create_baseapp=${{ github.event.inputs.create_baseapp }}' -var 'app_repository_url=${{ github.event.inputs.app_repository_url }}' -var 'app_repository_branch=${{ github.event.inputs.app_repository_branch }}' -var 'app_repository_path=${{ github.event.inputs.app_repository_path }}'
+        run: terraform plan -var 'name_prefix=${{ github.event.inputs.name_prefix }}' -var 'create_baseapp=${{ github.event.inputs.create_baseapp }}' -var 'restrict_instance_metadata=${{ github.event.inputs.restrict_instance_metadata }}' -var 'app_repository_url=${{ github.event.inputs.app_repository_url }}' -var 'app_repository_branch=${{ github.event.inputs.app_repository_branch }}' -var 'app_repository_path=${{ github.event.inputs.app_repository_path }}'
         env:
           TF_VAR_repository_url: ${{ github.server_url }}/${{ github.repository }}.git
