@@ -7,6 +7,10 @@ on:
         type: string
         description: Prefix used for resource names
         default: argocdmanagedstarter
+      restrict_instance_metadata:
+        type: boolean
+        description: Restrict pods from accesssing node instance metadata endpoint
+        default: true
       create_baseapp:
         type: boolean
         description: Set to true to create an ArgoCD app. This should be used as a base app in an app of apps pattern
@@ -59,10 +63,10 @@ jobs:
         run: terraform init -backend-config="bucket=$STATE_BUCKET_NAME" -backend-config="key=$STATE_BUCKET_KEY"
         env:
           STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
-          STATE_BUCKET_KEY: ${{ secrets.STATE_BUCKET_APPLICATION_KEY }}
+          STATE_BUCKET_KEY: ${{ github.event.inputs.name_prefix }}${{ secrets.STATE_BUCKET_APPLICATION_KEY }}
 
       - name: Terraform Apply
         id: plan
-        run: terraform apply -auto-approve -var 'name_prefix=${{ github.event.inputs.name_prefix }}' -var 'create_baseapp=${{ github.event.inputs.create_baseapp }}' -var 'app_repository_url=${{ github.event.inputs.app_repository_url }}' -var 'app_repository_branch=${{ github.event.inputs.app_repository_branch }}' -var 'app_repository_path=${{ github.event.inputs.app_repository_path }}'
+        run: terraform apply -auto-approve -var 'name_prefix=${{ github.event.inputs.name_prefix }}' -var 'create_baseapp=${{ github.event.inputs.create_baseapp }}' -var 'restrict_instance_metadata=${{ github.event.inputs.restrict_instance_metadata }}' -var 'app_repository_url=${{ github.event.inputs.app_repository_url }}' -var 'app_repository_branch=${{ github.event.inputs.app_repository_branch }}' -var 'app_repository_path=${{ github.event.inputs.app_repository_path }}'
         env:
           TF_VAR_repository_url: ${{ github.server_url }}/${{ github.repository }}.git

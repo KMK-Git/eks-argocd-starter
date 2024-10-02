@@ -2,6 +2,11 @@ name: "Terraform Destroy Managed EKS"
 
 on:
   workflow_dispatch:
+    inputs:
+      name_prefix:
+        type: string
+        description: Prefix used for resource names
+        default: argocdmanagedstarter
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -38,7 +43,7 @@ jobs:
         run: terraform init -backend-config="bucket=$STATE_BUCKET_NAME" -backend-config="key=$STATE_BUCKET_KEY"
         env:
           STATE_BUCKET_NAME: ${{ secrets.STATE_BUCKET_NAME }}
-          STATE_BUCKET_KEY: ${{ secrets.STATE_BUCKET_APPLICATION_KEY }}
+          STATE_BUCKET_KEY: ${{ github.event.inputs.name_prefix }}${{ secrets.STATE_BUCKET_APPLICATION_KEY }}
 
       - name: Terraform Destroy
         id: plan

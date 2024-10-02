@@ -53,6 +53,12 @@ module "managed_eks" {
       desired_size = 3
 
       subnet_ids = local.private_subnet_ids
+
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = var.restrict_instance_metadata ? 1 : 2
+      }
     }
   }
   access_entries = {
@@ -115,6 +121,14 @@ module "eks_blueprints_addons" {
   oidc_provider_arn = module.managed_eks.oidc_provider_arn
 
   enable_aws_load_balancer_controller = var.enable_aws_load_balancer_controller
+  aws_load_balancer_controller = {
+    set = [
+      {
+        name  = "vpcId"
+        value = data.aws_vpc.vpc.id
+      }
+    ]
+  }
   enable_metrics_server               = var.enable_metrics_server
   enable_external_dns                 = var.enable_external_dns
   external_dns_route53_zone_arns      = var.enable_external_dns ? data.aws_route53_zone.route53_zones[*].arn : []

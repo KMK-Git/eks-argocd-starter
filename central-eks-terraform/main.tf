@@ -53,6 +53,12 @@ module "central_eks" {
       desired_size = 3
 
       subnet_ids = local.private_subnet_ids
+
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = var.restrict_instance_metadata ? 1 : 2
+      }
     }
   }
   access_entries = {
@@ -155,9 +161,17 @@ module "eks_blueprints_addons" {
 
   enable_argocd                       = true
   enable_aws_load_balancer_controller = true
-  enable_metrics_server               = true
-  enable_external_dns                 = true
-  external_dns_route53_zone_arns      = [data.aws_route53_zone.argocd.arn]
+  aws_load_balancer_controller = {
+    set = [
+      {
+        name  = "vpcId"
+        value = data.aws_vpc.vpc.id
+      }
+    ]
+  }
+  enable_metrics_server          = true
+  enable_external_dns            = true
+  external_dns_route53_zone_arns = [data.aws_route53_zone.argocd.arn]
   argocd = {
     chart_version = "7.4.5"
     values        = [file("${path.module}/helmvalues/argocd.yaml")]
