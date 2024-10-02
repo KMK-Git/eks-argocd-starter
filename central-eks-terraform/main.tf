@@ -180,7 +180,7 @@ module "eks_blueprints_addons" {
 
 resource "time_sleep" "wait_lb_controller_deployment" {
   depends_on      = [module.eks_blueprints_addons]
-  create_duration = "120s"
+  create_duration = "60s"
 }
 
 resource "helm_release" "argocdingress" {
